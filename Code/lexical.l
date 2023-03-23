@@ -11,7 +11,7 @@
         yylloc.last_column = yycolumn + yyleng - 1; \
         yycolumn += yyleng;
 
-    #define RESPONSE(token_id, token_name)\
+    #define RESPONSE(token_id, token_name) \
     do \
     {\
         yylval.node = NewNode(yytext, token_name, yylineno); return token_id; \

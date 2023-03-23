@@ -31,11 +31,13 @@
 %type <node> Exp Args
 
 %right ASSIGNOP
+%left OR
+%left AND
 %left RELOP
-%left PLUS MINUS STAR DIV 
-%left AND OR 
-%right NOT
-%left LP RP LB RB LC RC
+%left PLUS MINUS 
+%left STAR DIV  
+%right UMINUS NOT
+%left LP RP LB RB LC RC DOT
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 
@@ -126,7 +128,7 @@ Exp:                Exp ASSIGNOP Exp                        { $$ = NewNode(NULL,
 |                   Exp STAR Exp                            { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 3, $1, $2, $3); }
 |                   Exp DIV Exp                             { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 3, $1, $2, $3); }
 |                   LP Exp RP                               { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 3, $1, $2, $3); }
-|                   MINUS Exp                               { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 2, $1, $2); }                
+|                   MINUS Exp %prec UMINUS                  { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 2, $1, $2); }                
 |                   NOT Exp                                 { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 2, $1, $2); }                                   
 |                   ID LP Args RP                           { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 4, $1, $2, $3, $4); }                
 |                   ID LP RP                                { $$ = NewNode(NULL, "Exp", @$.first_line); NodeGen($$, 3, $1, $2, $3); }
