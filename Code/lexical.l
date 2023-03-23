@@ -4,6 +4,7 @@
     #include <string.h>
     #include "common.h"
     #include "syntax.tab.h"
+    int lexerror = 0;
     int yycolumn = 1;
     #define YY_USER_ACTION \
         yylloc.first_line = yylloc.last_line = yylineno; \
@@ -11,24 +12,25 @@
         yylloc.last_column = yycolumn + yyleng - 1; \
         yycolumn += yyleng;
 
-    #define RESPONSE(token_id, token_name) \
+    #define RESPONSE(token_id, token_name, type) \
     do \
     {\
-        yylval.node = NewNode(yytext, token_name, yylineno); return token_id; \
+        yylval.node = NewNode(yytext, token_name, yylineno, type); return token_id; \
     }while(0)
 
 
     #define Error_Handler \
             fprintf(stdout, "Error type B at Line %d: Syntax Error.\n", yylineno)
     
-    Node *NewNode(char *content, char *token, int lineno);
+    Node *NewNode(char *content, char *token, int lineno, NodeType type);
 %}
 
 %option yylineno
 
 
-newline    (\n)
+newline    (\n|\r)
 delim      ([ \t])
+ws         ({delim}+)
 digit      ([0-9])
 letter     ([_a-zA-Z])
 
@@ -67,6 +69,7 @@ WHILE      (while)
 digits     ({digit}+)
 EXP        ([eE][+-]?{digits})
 FLOAT      ({digits}{DOT}{digits}?{EXP}?|{DOT}{digits}{EXP}?)
+
 %%
 
 "//"  {
@@ -84,43 +87,47 @@ FLOAT      ({digits}{DOT}{digits}?{EXP}?|{DOT}{digits}{EXP}?)
         else c = input();
     }
     Error_Handler;
+    lexerror = 1;
 }
 
 {newline}  {yycolumn = 1;}
-
-{DEC} { RESPONSE(INT, "DEC"); }
-{OCT} { RESPONSE(INT, "OCT"); }
-{HEX} { RESPONSE(INT, "HEX"); }
-{SEMI} { RESPONSE(SEMI, "SEMI"); }
-{COMMA} { RESPONSE(COMMA, "COMMA"); }
-{ASSIGNOP} { RESPONSE(ASSIGNOP, "ASSIGNOP"); }
-{RELOP} { RESPONSE(RELOP, "RELOP"); }
-{PLUS} { RESPONSE(PLUS, "PLUS"); }
-{MINUS} { RESPONSE(MINUS, "MINUS"); }
-{STAR} { RESPONSE(STAR, "STAR"); }
-{DIV} { RESPONSE(DIV, "DIV"); }
-{AND} { RESPONSE(AND, "AND"); }
-{OR} { RESPONSE(OR, "OR"); }
-{DOT} { RESPONSE(DOT, "DOT"); }
-{NOT} { RESPONSE(NOT, "NOT"); }
-{TYPE} { RESPONSE(TYPE, "TYPE"); }
-{LP} { RESPONSE(LP, "LP"); }
-{RP} { RESPONSE(RP, "RP"); }
-{LB} { RESPONSE(LB, "LB"); }
-{RB} { RESPONSE(RB, "RB"); }
-{LC} { RESPONSE(LC, "LC"); }
-{RC} { RESPONSE(RC, "RC"); }
-{STRUCT} { RESPONSE(STRUCT, "STRUCT"); }
-{RETURN} { RESPONSE(RETURN, "RETURN"); }
-{IF} { RESPONSE(IF, "IF"); }
-{ELSE} { RESPONSE(ELSE, "ELSE"); }
-{WHILE} { RESPONSE(WHILE, "WHILE"); }
-{FLOAT} { RESPONSE(FLOAT, "FLOAT"); }
-{ID} { RESPONSE(ID, "ID"); }
+{ws}  {}
+{DEC} { RESPONSE(INT, "DEC", TOKEN_INT); }
+{OCT} { RESPONSE(INT, "OCT", TOKEN_INT); }
+{HEX} { RESPONSE(INT, "HEX", TOKEN_INT); }
+{SEMI} { RESPONSE(SEMI, "SEMI", TOKEN_OTHER); }
+{COMMA} { RESPONSE(COMMA, "COMMA", TOKEN_OTHER); }
+{ASSIGNOP} { RESPONSE(ASSIGNOP, "ASSIGNOP", TOKEN_OTHER); }
+{RELOP} { RESPONSE(RELOP, "RELOP", TOKEN_OTHER); }
+{PLUS} { RESPONSE(PLUS, "PLUS", TOKEN_OTHER); }
+{MINUS} { RESPONSE(MINUS, "MINUS", TOKEN_OTHER); }
+{STAR} { RESPONSE(STAR, "STAR", TOKEN_OTHER); }
+{DIV} { RESPONSE(DIV, "DIV", TOKEN_OTHER); }
+{AND} { RESPONSE(AND, "AND", TOKEN_OTHER); }
+{OR} { RESPONSE(OR, "OR", TOKEN_OTHER); }
+{DOT} { RESPONSE(DOT, "DOT", TOKEN_OTHER); }
+{NOT} { RESPONSE(NOT, "NOT", TOKEN_OTHER); }
+{TYPE} { RESPONSE(TYPE, "TYPE", TOKEN_TYPE); }
+{LP} { RESPONSE(LP, "LP", TOKEN_OTHER); }
+{RP} { RESPONSE(RP, "RP", TOKEN_OTHER); }
+{LB} { RESPONSE(LB, "LB", TOKEN_OTHER); }
+{RB} { RESPONSE(RB, "RB", TOKEN_OTHER); }
+{LC} { RESPONSE(LC, "LC", TOKEN_OTHER); }
+{RC} { RESPONSE(RC, "RC", TOKEN_OTHER); }
+{STRUCT} { RESPONSE(STRUCT, "STRUCT", TOKEN_OTHER); }
+{RETURN} { RESPONSE(RETURN, "RETURN", TOKEN_OTHER); }
+{IF} { RESPONSE(IF, "IF", TOKEN_OTHER); }
+{ELSE} { RESPONSE(ELSE, "ELSE", TOKEN_OTHER); }
+{WHILE} { RESPONSE(WHILE, "WHILE", TOKEN_OTHER); }
+{FLOAT} { RESPONSE(FLOAT, "FLOAT", TOKEN_FLOAT); }
+{ID} { RESPONSE(ID, "ID", TOKEN_ID); }
+. { lexerror = 1; fprintf(stdout, "Error type A at Line %d: Unknown Token \"%s\".\n", yylineno, yytext);}
 %%
 
-Node *NewNode(char *content, char *token, int lineno){
+Node *NewNode(char *content, char *token, int lineno, NodeType type){
+    //printf("Making Node %s\n", token);
     Node *n = malloc(sizeof(Node));
+    n->type = type;
     n->lineno = lineno;
     if (content == NULL) n->content = NULL;
     else {

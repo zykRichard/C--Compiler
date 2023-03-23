@@ -1,11 +1,14 @@
 # GNU make手册：http://www.gnu.org/software/make/manual/make.html
 # ************ 遇到不明白的地方请google以及阅读手册 *************
+.PHONY:run
+run: parser
+	./parser ../Test/test1.cmm
 
 # 编译器设定和编译选项
 CC = gcc
 FLEX = flex
 BISON = bison
-CFLAGS = -std=c99
+CFLAGS = -std=c99 -g
 
 # 编译目标：src目录下的所有.c文件
 CFILES = $(shell find ./ -name "*.c")
@@ -18,10 +21,10 @@ LFO = $(LFC:.c=.o)
 YFO = $(YFC:.c=.o)
 
 parser: syntax $(filter-out $(LFO),$(OBJS))
-	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly
+	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -g -lfl -ly
 
 syntax: lexical syntax-c
-	$(CC) -c $(YFC) -o $(YFO)
+	$(CC) -c  -g $(YFC) -o $(YFO)
 
 lexical: $(LFILE)
 	$(FLEX) -o $(LFC) $(LFILE)

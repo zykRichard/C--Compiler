@@ -1,6 +1,15 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+typedef enum nodetype{
+    TOKEN_ID,          // ID
+    TOKEN_TYPE,        // INT|FLOAT
+    TOKEN_INT,         // int value
+    TOKEN_FLOAT,       // float value
+    TOKEN_OTHER,       // OTHER TOKENS
+    LANG               // NOT A TOKEN
+} NodeType;
+
 typedef struct Node {
     union {
         int int_val;
@@ -9,6 +18,7 @@ typedef struct Node {
     int lineno;
     char *content;
     char *token;
+    NodeType type;
     /*  From left to right */
     struct Node *bros;
     struct Node *childs; 

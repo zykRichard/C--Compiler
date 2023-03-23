@@ -72,11 +72,13 @@
     #include <stdio.h>
     #include <stdarg.h>
     #include "lex.yy.c"
+    int synerror = 0;
     int yyerror(char *msg);
     void NodeGen(Node *pre, int argc, ...);
+    void TreePrint(Node *root, int depth);
     Node* root = NULL;
 
-#line 80 "./syntax.tab.c"
+#line 82 "./syntax.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -104,7 +106,7 @@
 # undef YYERROR_VERBOSE
 # define YYERROR_VERBOSE 1
 #else
-# define YYERROR_VERBOSE 0
+# define YYERROR_VERBOSE 1
 #endif
 
 /* Use api.header.include to #include this header
@@ -160,11 +162,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 12 "./syntax.y"
+#line 14 "./syntax.y"
 
     Node* node;    
 
-#line 168 "./syntax.tab.c"
+#line 170 "./syntax.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -559,16 +561,16 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    46,    46,    49,    50,    53,    54,    55,    58,    59,
-      62,    63,    66,    67,    70,    71,    74,    77,    78,    81,
-      82,    85,    86,    89,    92,    95,    96,    99,   100,   101,
-     102,   103,   104,   107,   108,   111,   114,   115,   118,   119,
-     122,   123,   124,   125,   126,   127,   128,   129,   130,   131,
-     132,   133,   134,   135,   136,   137,   138,   139,   142,   143
+       0,    48,    48,    51,    52,    55,    56,    57,    60,    61,
+      64,    65,    68,    69,    72,    73,    76,    79,    80,    83,
+      84,    87,    88,    91,    94,    97,    98,   101,   102,   103,
+     104,   105,   106,   109,   110,   113,   116,   117,   120,   121,
+     124,   125,   126,   127,   128,   129,   130,   131,   132,   133,
+     134,   135,   136,   137,   138,   139,   140,   141,   144,   145
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+#if YYDEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -1543,355 +1545,355 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 46 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Program", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); root = (yyval.node); }
-#line 1549 "./syntax.tab.c"
+#line 48 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Program", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); root = (yyval.node); }
+#line 1551 "./syntax.tab.c"
     break;
 
   case 3:
-#line 49 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDefList", (yyloc).first_line); }
-#line 1555 "./syntax.tab.c"
+#line 51 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDefList", (yyloc).first_line, LANG); }
+#line 1557 "./syntax.tab.c"
     break;
 
   case 4:
-#line 50 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDefList", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1561 "./syntax.tab.c"
+#line 52 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDefList", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1563 "./syntax.tab.c"
     break;
 
   case 5:
-#line 53 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDef", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1567 "./syntax.tab.c"
+#line 55 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDef", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1569 "./syntax.tab.c"
     break;
 
   case 6:
-#line 54 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDef", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1573 "./syntax.tab.c"
+#line 56 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDef", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1575 "./syntax.tab.c"
     break;
 
   case 7:
-#line 55 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDef", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1579 "./syntax.tab.c"
+#line 57 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDef", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1581 "./syntax.tab.c"
     break;
 
   case 8:
-#line 58 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDecList", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1585 "./syntax.tab.c"
+#line 60 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDecList", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1587 "./syntax.tab.c"
     break;
 
   case 9:
-#line 59 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ExtDecList", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1591 "./syntax.tab.c"
+#line 61 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ExtDecList", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1593 "./syntax.tab.c"
     break;
 
   case 10:
-#line 62 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Specifier", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1597 "./syntax.tab.c"
+#line 64 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Specifier", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1599 "./syntax.tab.c"
     break;
 
   case 11:
-#line 63 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Specifier", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1603 "./syntax.tab.c"
+#line 65 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Specifier", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1605 "./syntax.tab.c"
     break;
 
   case 12:
-#line 66 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "StructSpecifier", (yyloc).first_line); NodeGen((yyval.node), 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1609 "./syntax.tab.c"
+#line 68 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "StructSpecifier", (yyloc).first_line, LANG); NodeGen((yyval.node), 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1611 "./syntax.tab.c"
     break;
 
   case 13:
-#line 67 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "StructSpecifier", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1615 "./syntax.tab.c"
+#line 69 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "StructSpecifier", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1617 "./syntax.tab.c"
     break;
 
   case 14:
-#line 70 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "OptTag", (yyloc).first_line); }
-#line 1621 "./syntax.tab.c"
+#line 72 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "OptTag", (yyloc).first_line, LANG); }
+#line 1623 "./syntax.tab.c"
     break;
 
   case 15:
-#line 71 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "OptTag", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1627 "./syntax.tab.c"
+#line 73 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "OptTag", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1629 "./syntax.tab.c"
     break;
 
   case 16:
-#line 74 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Tag", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1633 "./syntax.tab.c"
+#line 76 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Tag", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1635 "./syntax.tab.c"
     break;
 
   case 17:
-#line 77 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "VarDec", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1639 "./syntax.tab.c"
+#line 79 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "VarDec", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1641 "./syntax.tab.c"
     break;
 
   case 18:
-#line 78 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "VarDec", (yyloc).first_line); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1645 "./syntax.tab.c"
+#line 80 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "VarDec", (yyloc).first_line, LANG); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1647 "./syntax.tab.c"
     break;
 
   case 19:
-#line 81 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "FunDec", (yyloc).first_line); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1651 "./syntax.tab.c"
+#line 83 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "FunDec", (yyloc).first_line, LANG); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1653 "./syntax.tab.c"
     break;
 
   case 20:
-#line 82 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "FunDec", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1657 "./syntax.tab.c"
+#line 84 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "FunDec", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1659 "./syntax.tab.c"
     break;
 
   case 21:
-#line 85 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "VarList", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1663 "./syntax.tab.c"
+#line 87 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "VarList", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1665 "./syntax.tab.c"
     break;
 
   case 22:
-#line 86 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "VarList", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1669 "./syntax.tab.c"
+#line 88 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "VarList", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1671 "./syntax.tab.c"
     break;
 
   case 23:
-#line 89 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "ParamDec", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1675 "./syntax.tab.c"
+#line 91 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "ParamDec", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1677 "./syntax.tab.c"
     break;
 
   case 24:
-#line 92 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "CompSt", (yyloc).first_line); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1681 "./syntax.tab.c"
+#line 94 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "CompSt", (yyloc).first_line, LANG); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1683 "./syntax.tab.c"
     break;
 
   case 25:
-#line 95 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "StmtList", (yyloc).first_line); }
-#line 1687 "./syntax.tab.c"
+#line 97 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "StmtList", (yyloc).first_line, LANG); }
+#line 1689 "./syntax.tab.c"
     break;
 
   case 26:
-#line 96 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "StmtList", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1693 "./syntax.tab.c"
+#line 98 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "StmtList", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1695 "./syntax.tab.c"
     break;
 
   case 27:
-#line 99 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1699 "./syntax.tab.c"
+#line 101 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1701 "./syntax.tab.c"
     break;
 
   case 28:
-#line 100 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1705 "./syntax.tab.c"
+#line 102 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1707 "./syntax.tab.c"
     break;
 
   case 29:
-#line 101 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1711 "./syntax.tab.c"
+#line 103 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1713 "./syntax.tab.c"
     break;
 
   case 30:
-#line 102 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line); NodeGen((yyval.node), 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1717 "./syntax.tab.c"
+#line 104 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line, LANG); NodeGen((yyval.node), 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1719 "./syntax.tab.c"
     break;
 
   case 31:
-#line 103 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line); NodeGen((yyval.node), 7, (yyvsp[-6].node), (yyvsp[-5].node), (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1723 "./syntax.tab.c"
+#line 105 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line, LANG); NodeGen((yyval.node), 7, (yyvsp[-6].node), (yyvsp[-5].node), (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1725 "./syntax.tab.c"
     break;
 
   case 32:
-#line 104 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line); NodeGen((yyval.node), 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1729 "./syntax.tab.c"
+#line 106 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Stmt", (yyloc).first_line, LANG); NodeGen((yyval.node), 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1731 "./syntax.tab.c"
     break;
 
   case 33:
-#line 107 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "DefList", (yyloc).first_line); }
-#line 1735 "./syntax.tab.c"
+#line 109 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "DefList", (yyloc).first_line, LANG); }
+#line 1737 "./syntax.tab.c"
     break;
 
   case 34:
-#line 108 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "DefList", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1741 "./syntax.tab.c"
+#line 110 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "DefList", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1743 "./syntax.tab.c"
     break;
 
   case 35:
-#line 111 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Def", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1747 "./syntax.tab.c"
+#line 113 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Def", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1749 "./syntax.tab.c"
     break;
 
   case 36:
-#line 114 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "DecList", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1753 "./syntax.tab.c"
+#line 116 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "DecList", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1755 "./syntax.tab.c"
     break;
 
   case 37:
-#line 115 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "DecList", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1759 "./syntax.tab.c"
+#line 117 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "DecList", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1761 "./syntax.tab.c"
     break;
 
   case 38:
-#line 118 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Dec", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1765 "./syntax.tab.c"
+#line 120 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Dec", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1767 "./syntax.tab.c"
     break;
 
   case 39:
-#line 119 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Dec", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1771 "./syntax.tab.c"
+#line 121 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Dec", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1773 "./syntax.tab.c"
     break;
 
   case 40:
-#line 122 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1777 "./syntax.tab.c"
+#line 124 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1779 "./syntax.tab.c"
     break;
 
   case 41:
-#line 123 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1783 "./syntax.tab.c"
+#line 125 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1785 "./syntax.tab.c"
     break;
 
   case 42:
-#line 124 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1789 "./syntax.tab.c"
+#line 126 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1791 "./syntax.tab.c"
     break;
 
   case 43:
-#line 125 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1795 "./syntax.tab.c"
+#line 127 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1797 "./syntax.tab.c"
     break;
 
   case 44:
-#line 126 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1801 "./syntax.tab.c"
+#line 128 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1803 "./syntax.tab.c"
     break;
 
   case 45:
-#line 127 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1807 "./syntax.tab.c"
+#line 129 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1809 "./syntax.tab.c"
     break;
 
   case 46:
-#line 128 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1813 "./syntax.tab.c"
+#line 130 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1815 "./syntax.tab.c"
     break;
 
   case 47:
-#line 129 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1819 "./syntax.tab.c"
+#line 131 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1821 "./syntax.tab.c"
     break;
 
   case 48:
-#line 130 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1825 "./syntax.tab.c"
+#line 132 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1827 "./syntax.tab.c"
     break;
 
   case 49:
-#line 131 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1831 "./syntax.tab.c"
+#line 133 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1833 "./syntax.tab.c"
     break;
 
   case 50:
-#line 132 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1837 "./syntax.tab.c"
+#line 134 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1839 "./syntax.tab.c"
     break;
 
   case 51:
-#line 133 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1843 "./syntax.tab.c"
+#line 135 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1845 "./syntax.tab.c"
     break;
 
   case 52:
-#line 134 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1849 "./syntax.tab.c"
+#line 136 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1851 "./syntax.tab.c"
     break;
 
   case 53:
-#line 135 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1855 "./syntax.tab.c"
+#line 137 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1857 "./syntax.tab.c"
     break;
 
   case 54:
-#line 136 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1861 "./syntax.tab.c"
+#line 138 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1863 "./syntax.tab.c"
     break;
 
   case 55:
-#line 137 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1867 "./syntax.tab.c"
+#line 139 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1869 "./syntax.tab.c"
     break;
 
   case 56:
-#line 138 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1873 "./syntax.tab.c"
+#line 140 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1875 "./syntax.tab.c"
     break;
 
   case 57:
-#line 139 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1879 "./syntax.tab.c"
+#line 141 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Exp", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1881 "./syntax.tab.c"
     break;
 
   case 58:
-#line 142 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Args", (yyloc).first_line); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1885 "./syntax.tab.c"
+#line 144 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Args", (yyloc).first_line, LANG); NodeGen((yyval.node), 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1887 "./syntax.tab.c"
     break;
 
   case 59:
-#line 143 "./syntax.y"
-                                                            { (yyval.node) = NewNode(NULL, "Args", (yyloc).first_line); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
-#line 1891 "./syntax.tab.c"
+#line 145 "./syntax.y"
+                                                            { (yyval.node) = NewNode(NULL, "Args", (yyloc).first_line, LANG); NodeGen((yyval.node), 1, (yyvsp[0].node)); }
+#line 1893 "./syntax.tab.c"
     break;
 
 
-#line 1895 "./syntax.tab.c"
+#line 1897 "./syntax.tab.c"
 
       default: break;
     }
@@ -2129,7 +2131,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 146 "./syntax.y"
+#line 148 "./syntax.y"
 
 
 void NodeGen(Node *pre, int argc, ...){
@@ -2138,6 +2140,7 @@ void NodeGen(Node *pre, int argc, ...){
     va_start(vaList, argc);
 
     Node *childnode = va_arg(vaList, Node*);
+    //printf("Add node %s, father is %s\n", childnode -> token, pre -> token);
     if(curchild == NULL) {
         pre -> childs = childnode;
         curchild = childnode;
@@ -2151,7 +2154,45 @@ void NodeGen(Node *pre, int argc, ...){
 
     for(int i = 1; i < argc; i++){
         childnode = va_arg(vaList, Node*);
+        //printf("Add node %s, father is %s\n", childnode -> token, pre -> token);
         curchild -> bros = childnode;
         curchild = childnode;
     }   
+}
+
+void TreePrint(Node *root, int depth){
+    int flag = 1;
+    if(root == NULL) return ;
+    //printf("Now token is %s\n", root -> token);
+    if(root -> type == LANG && root -> childs == NULL)
+        flag = 0;
+    if(flag)
+    for(int i = 0; i < depth; i++)
+        printf("  ");
+
+    if(root -> type == LANG){
+        if(root -> childs != NULL) 
+            printf("%s (%d)\n", root -> token, root -> lineno);
+    }
+
+    else if(root -> type == TOKEN_ID)
+        printf("%s: %s\n", root -> token, root -> content);
+    else if(root -> type == TOKEN_TYPE)
+        printf("%s: %s\n", root -> token, root -> content);
+    else if(root -> type == TOKEN_INT)
+        printf("%s: %d\n", root -> token, root -> int_val);
+    else if(root -> type == TOKEN_FLOAT)
+        printf("%s: %lf\n", root -> token, root -> float_val);
+    else if(root -> type == TOKEN_OTHER)
+        printf("%s\n", root -> token);
+    
+    TreePrint(root -> childs, depth + 1);
+    TreePrint(root -> bros, depth);
+}
+
+int yyerror(char *msg){
+    synerror = 1;
+    fprintf(stdout, "Error type B at Line %d: ", yylineno);
+    fprintf(stdout, "%s\n", msg);
+    
 }
