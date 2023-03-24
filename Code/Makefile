@@ -2,7 +2,7 @@
 # ************ 遇到不明白的地方请google以及阅读手册 *************
 .PHONY:run
 run: parser
-	./parser ../Test/test1.cmm
+	./parser ../Test/test3.cmm
 
 # 编译器设定和编译选项
 CC = gcc

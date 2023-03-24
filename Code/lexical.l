@@ -20,7 +20,7 @@
 
 
     #define Error_Handler \
-            fprintf(stdout, "Error type B at Line %d: Syntax Error.\n", yylineno)
+            fprintf(stdout, "Error type B at Line %d: Syntax Error in Comment Syntax.\n", yylineno)
     
     Node *NewNode(char *content, char *token, int lineno, NodeType type);
 %}
@@ -86,9 +86,13 @@ FLOAT      ({digits}{DOT}{digits}?{EXP}?|{DOT}{digits}{EXP}?)
         }
         else c = input();
     }
+    if(c != '/'){
     Error_Handler;
     lexerror = 1;
+    }
 }
+
+"*/" { Error_Handler; }
 
 {newline}  {yycolumn = 1;}
 {ws}  {}

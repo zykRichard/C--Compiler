@@ -55,6 +55,7 @@ ExtDefList:         /* empty */                             { $$ = NewNode(NULL,
 ExtDef:             Specifier ExtDecList SEMI               { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
 |                   Specifier SEMI                          { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 2, $1, $2); }
 |                   Specifier FunDec CompSt                 { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
+|                   error SEMI                              { synerror = 1;}
 ;
 
 ExtDecList:         VarDec                                  { $$ = NewNode(NULL, "ExtDecList", @$.first_line, LANG); NodeGen($$, 1, $1); }
@@ -78,10 +79,12 @@ Tag:                ID                                      { $$ = NewNode(NULL,
 
 VarDec:             ID                                      { $$ = NewNode(NULL, "VarDec", @$.first_line, LANG); NodeGen($$, 1, $1); }
 |                   VarDec LB INT RB                        { $$ = NewNode(NULL, "VarDec", @$.first_line, LANG); NodeGen($$, 4, $1, $2, $3, $4); }                    
+|                   error RB                                { synerror = 1; }
 ;
 
 FunDec:             ID LP VarList RP                        { $$ = NewNode(NULL, "FunDec", @$.first_line, LANG); NodeGen($$, 4, $1, $2, $3, $4); }
 |                   ID LP RP                                { $$ = NewNode(NULL, "FunDec", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
+|                   error RP                                { synerror = 1; }
 ;
 
 VarList:            ParamDec COMMA VarList                  { $$ = NewNode(NULL, "VarList", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
@@ -92,6 +95,7 @@ ParamDec:           Specifier VarDec                        { $$ = NewNode(NULL,
 ;
 
 CompSt:             LC DefList StmtList RC                  { $$ = NewNode(NULL, "CompSt", @$.first_line, LANG); NodeGen($$, 4, $1, $2, $3, $4); }
+|                   error RC                                { synerror = 1; }
 ;
 
 StmtList:           /* empty */                             { $$ = NewNode(NULL, "StmtList", @$.first_line, LANG); }
@@ -104,6 +108,7 @@ Stmt:               Exp SEMI                                { $$ = NewNode(NULL,
 |                   IF LP Exp RP Stmt %prec LOWER_THAN_ELSE { $$ = NewNode(NULL, "Stmt", @$.first_line, LANG); NodeGen($$, 5, $1, $2, $3, $4, $5); }
 |                   IF LP Exp RP Stmt ELSE Stmt             { $$ = NewNode(NULL, "Stmt", @$.first_line, LANG); NodeGen($$, 7, $1, $2, $3, $4, $5, $6, $7); }
 |                   WHILE LP Exp RP Stmt                    { $$ = NewNode(NULL, "Stmt", @$.first_line, LANG); NodeGen($$, 5, $1, $2, $3, $4, $5); }
+|                   error SEMI                              { synerror = 1; }
 ;
 
 DefList:            /* empty */                             { $$ = NewNode(NULL, "DefList", @$.first_line, LANG); }
@@ -111,6 +116,7 @@ DefList:            /* empty */                             { $$ = NewNode(NULL,
 ;
 
 Def:                Specifier DecList SEMI                  { $$ = NewNode(NULL, "Def", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
+|                   error SEMI                              { synerror = 1; }
 ;
 
 DecList:            Dec                                     { $$ = NewNode(NULL, "DecList", @$.first_line, LANG); NodeGen($$, 1, $1); }
@@ -139,6 +145,9 @@ Exp:                Exp ASSIGNOP Exp                        { $$ = NewNode(NULL,
 |                   ID                                      { $$ = NewNode(NULL, "Exp", @$.first_line, LANG); NodeGen($$, 1, $1); }
 |                   INT                                     { $$ = NewNode(NULL, "Exp", @$.first_line, LANG); NodeGen($$, 1, $1); }
 |                   FLOAT                                   { $$ = NewNode(NULL, "Exp", @$.first_line, LANG); NodeGen($$, 1, $1); }
+|                   LP error RP                             { synerror = 1; }
+|                   ID LP error RP                          { synerror = 1; }
+|                   Exp LB error RB                         { synerror = 1; } 
 ;
 
 Args:               Exp COMMA Args                          { $$ = NewNode(NULL, "Args", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
