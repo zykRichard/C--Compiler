@@ -3,6 +3,7 @@
     #include <stdio.h>
     #include <stdarg.h>
     #include "lex.yy.c"
+    
     int synerror = 0;
     int yyerror(char *msg);
     void NodeGen(Node *pre, int argc, ...);
@@ -68,6 +69,7 @@ Specifier:          TYPE                                    { $$ = NewNode(NULL,
 
 StructSpecifier:    STRUCT OptTag LC DefList RC             { $$ = NewNode(NULL, "StructSpecifier", @$.first_line, LANG); NodeGen($$, 5, $1, $2, $3, $4, $5); }
 |                   STRUCT Tag                              { $$ = NewNode(NULL, "StructSpecifier", @$.first_line, LANG); NodeGen($$, 2, $1, $2); }
+|                   error RC                                { synerror = 1; }
 ;
 
 OptTag:             /* empty */                             { $$ = NewNode(NULL, "OptTag", @$.first_line, LANG); }
@@ -79,7 +81,7 @@ Tag:                ID                                      { $$ = NewNode(NULL,
 
 VarDec:             ID                                      { $$ = NewNode(NULL, "VarDec", @$.first_line, LANG); NodeGen($$, 1, $1); }
 |                   VarDec LB INT RB                        { $$ = NewNode(NULL, "VarDec", @$.first_line, LANG); NodeGen($$, 4, $1, $2, $3, $4); }                    
-|                   error RB                                { synerror = 1; }
+|                   VarDec LB error RB                      { synerror = 1; } 
 ;
 
 FunDec:             ID LP VarList RP                        { $$ = NewNode(NULL, "FunDec", @$.first_line, LANG); NodeGen($$, 4, $1, $2, $3, $4); }
@@ -147,7 +149,15 @@ Exp:                Exp ASSIGNOP Exp                        { $$ = NewNode(NULL,
 |                   FLOAT                                   { $$ = NewNode(NULL, "Exp", @$.first_line, LANG); NodeGen($$, 1, $1); }
 |                   LP error RP                             { synerror = 1; }
 |                   ID LP error RP                          { synerror = 1; }
-|                   Exp LB error RB                         { synerror = 1; } 
+|                   Exp LB error RB                         { synerror = 1; }
+// |                   Exp ASSIGNOP error                      { synerror = 1; }
+// |                   Exp AND error                           { synerror = 1; }
+// |                   Exp OR error                            { synerror = 1; } 
+// |                   Exp RELOP error                         { synerror = 1; }
+// |                   Exp PLUS error                          { synerror = 1; }
+// |                   Exp MINUS error                         { synerror = 1; }
+// |                   Exp STAR error                          { synerror = 1; }
+// |                   Exp DIV error                           { synerror = 1; }
 ;
 
 Args:               Exp COMMA Args                          { $$ = NewNode(NULL, "Args", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }

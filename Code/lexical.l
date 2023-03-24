@@ -36,9 +36,9 @@ letter     ([_a-zA-Z])
 
 ID         ({letter}({letter}|{digit})*)
 
-DEC        (([1-9]{digit}*)|(0))
 OCT        (0[1-7][0-7]*)
 HEX        ((0x|0X)[1-9a-fA-F][0-9a-fA-F]*)
+DEC        (([1-9]{digit}*)|(0))
 /* INT        ({DEC}|{OCT}|{HEX}) */
 
 SEMI       (;)
