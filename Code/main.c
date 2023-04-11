@@ -9,7 +9,7 @@ extern Node* root;
 extern int lexerror;
 extern int synerror;
 extern int yydebug;
-extern TreePrint(Node* root, int depth);
+extern void TreePrint(Node* root, int depth);
 
 int main(int argc, char **argv){
     if(argc > 1){
@@ -22,6 +22,7 @@ int main(int argc, char **argv){
     yyparse();
     if(lexerror == 0 && synerror == 0)
         TreePrint(root, 0);
+        TreeTraverse(root);
     //printf("parser over file: %s finished", argv[1]);
     return 0;
 }

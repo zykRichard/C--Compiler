@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "semantic.h"
+extern int stack_top;
 
 char *err_msg[20] = {
     " reserved ",
@@ -28,10 +29,19 @@ char *err_msg[20] = {
     "Inconsistence of function declaration"
 };
 
+// Global Function
+void TreeTraverse(Node *root){
+    if(root == NULL) return ;
+    if(strcmp(root -> token, "ExtDef") == 0) ExtDef(root);
+
+    TreeTraverse(root -> childs);
+    TreeTraverse(root -> bros);
+}
+
 
 
 static inline void ErrorReport(int code, int lineno){
-    printf("Error type %d at Line %d: %s", code, lineno, err_msg[code]);
+    printf("Error type %d at Line %d: %s\n", code, lineno, err_msg[code]);
 }
 
 
@@ -165,7 +175,7 @@ void ExtDecList(Node *n, type* specifier){
         ErrorReport(3, var -> lineno);
 
     else 
-        hash_insert(newsym);
+        hash_insert(newsym, stack_top);
 
     return;
    }
@@ -176,7 +186,7 @@ void ExtDecList(Node *n, type* specifier){
     if(CheckForConflict(newsym))
         ErrorReport(3, var -> lineno);
     else 
-        hash_insert(newsym);
+        hash_insert(newsym, stack_top);
     
     Node *NxtDecList = var -> bros -> bros;
     ExtDecList(NxtDecList, specifier);
@@ -334,12 +344,83 @@ void CompSt(Node *n, type *ReturnSpecifier){
    // 碰见LC，作用域改变，栈push
    stack_top ++;
    
+   Node *Dlist = n -> childs -> bros;
+   DefList(Dlist, NULL); // 此时是非structure作用域，ScopeSpecifier设为NULL
+   Node *slist = Dlist -> bros;
+   StmtList(slist, ReturnSpecifier);
 
    // 碰见RC，作用域改变，栈pop
    stack_top --;
 }
 
 
+void VarList(Node *n, type *ScopeSpecifier){
+    /*
+    VarList    ->    ParamDec COMMA VarList
+                   | ParamDec
+    */
+
+   // TODO 
+}
+
+void StmtList(Node *n, type *ReturnSpecifier){
+    /*
+    StmtList     ->      Stmt StmtList
+                    |    e
+    */
+
+   Node * stmt = n -> childs;
+   if(stmt){
+    Stmt(stmt, ReturnSpecifier);
+    StmtList(stmt -> bros, ReturnSpecifier);
+   }
+
+   return ;
+}
+
+
+void Stmt(Node *n, type *ReturnSpecifier){
+    /*
+    Stmt        ->        Exp SEMI
+                    |     CompSt
+                    |     RETURN Exp SEMI
+                    |     IF LP Exp RP Stmt 
+                    |     IF LP Exp RP Stmt ELSE Stmt
+                    |     WHILE LP Exp RP Stmt
+    */
+
+    // Stmt  ->   Exp SEMI 
+    // 调用Exp处理一下子结点即可
+    if(strcmp(n -> childs -> token, "Exp") == 0) {
+            type *exp = Exp(n -> childs);
+            return ;
+            }
+    
+    // Stmt   ->  CompSt
+    else if(strcmp(n -> childs -> token, "CompSt") == 0)
+            return CompSt(n -> childs, ReturnSpecifier);
+    
+
+    // Stmt   ->   RETURN Exp SEMI
+    // 处理return报错
+    else if(strcmp(n -> childs -> token, "RETURN") == 0){
+            type *exp = Exp(n -> childs -> bros);
+            if(!TypeCheck(ReturnSpecifier, exp))
+                // return type dismatch
+                ErrorReport(8, n -> lineno);
+    }
+
+    // Stmt  ->  IF LP Exp RP Stmt
+    else if(strcmp(n -> childs -> token, "IF") == 0){
+            Node *stmt = n -> childs -> bros -> bros -> bros -> bros;
+            Node *exp = n -> childs -> bros -> bros;
+            type *k = Exp(exp);
+            Stmt(stmt, ReturnSpecifier);
+            // Stmt   ->   IF LP Exp RP Stmt ELSE Stmt
+            if(stmt -> bros != NULL) Stmt(stmt -> bros -> bros, ReturnSpecifier);
+    }
+
+}
 
 type *Exp(Node *n){
     /*
@@ -368,23 +449,28 @@ type *Exp(Node *n){
         if(strcmp(c -> bros -> token, "LB") && strcmp(c -> bros -> token, "DOT")){
             // 二元运算关系
 
-            // type *p1 = Exp(c);
-            // type *p2 = Exp(c -> bros -> bros);
+            type *p1 = Exp(c);
+            type *p2 = Exp(c -> bros -> bros);
 
             Node *op = c -> bros;
             if(strcmp(op -> token, "ASSIGNOP") == 0){
                 // Assignment
+                
                 if(strcmp(c -> childs -> token, "INT") == 0 ||
-                    strcmp(c -> childs -> token, "FLOAT")){
+                         strcmp(c -> childs -> token, "FLOAT") == 0){
+                    
                     // 赋值号左值报错
                     ErrorReport(6, c -> lineno);
-                    return ;
+                    return NULL;
                     }
+
                 
-                else if(1){
-                    // TODO : other operator
+                else {
+                    // TODO : other error in assignment
                 }
             }
+
+            // TODO : other operator
         }
 
    }
@@ -395,15 +481,51 @@ type *Exp(Node *n){
    */
 
     else if(strcmp(c -> token, "ID") == 0){
-        sym *IDsym = hash_search(c -> content);
-        if(IDsym == NULL){
-            // Undefined Variable
-            ErrorReport(1, c -> lineno);
-            return ;
+        if(c -> bros == NULL) {
+            sym *IDsym = hash_search(c -> content);
+            if(IDsym == NULL){
+                // Undefined Variable
+                ErrorReport(1, c -> lineno);
+                return NULL;
         }
-        else return (IDsym -> tp);
+            else return (IDsym -> tp);
     }
+        else {
+            sym *Funsym = hash_search(c -> content);
 
+            if(Funsym == NULL){
+                // Undefined Function
+                ErrorReport(2, c -> lineno);
+                return NULL;
+            }
+
+            else if(Funsym -> tp -> kind != FUNCTION){
+                // Not a Function
+                ErrorReport(11, c -> lineno);
+                return NULL;
+            }
+            /*
+            Exp   ->   ID LP Args RP
+            */
+            if(strcmp(c -> bros -> bros -> token , "Args") == 0){
+                Node *args = c -> bros -> bros;
+                Args(args, Funsym -> tp);
+                return Funsym -> tp -> u.function -> ret;
+            }
+            /*
+            Exp   ->   ID LP RP
+            */
+            else {
+                if(Funsym -> tp -> u.function -> argc != 0){
+                    // too few arguments
+                    ErrorReport(9, c -> lineno);
+                    return NULL;
+                }
+                else return Funsym -> tp -> u.function -> ret;
+            }
+        }
+
+    }
     /*
     Exp      ->    INT
     */
@@ -419,4 +541,8 @@ type *Exp(Node *n){
     else if(strcmp(c -> token, "FLOAT") == 0){
         return NewType(BASIC, 1);
     }
+}
+
+void Args(Node *n, type *ScopeSpecifier){
+    // TODO
 }

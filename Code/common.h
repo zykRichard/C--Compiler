@@ -88,8 +88,10 @@ typedef struct sym_t {
     int StackDepth;
 } sym;
 
-sym *hash_table[0x3fff] = {0};
-sym *stack[0x3fff] = {0};
-int stack_top = 0;
+
+
+
+// global function
+void TreeTraverse(Node *root);
 
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */
