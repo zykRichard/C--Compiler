@@ -113,8 +113,11 @@ int CheckForConflict(sym *s){
     if(ref == NULL) return 0;
     while(ref){
         if(strcmp(ref -> name, s -> name) == 0){
-            if(ref -> tp -> kind == STRUCTURE || 
-                s -> tp -> kind == STRUCTURE)
+            if((ref -> tp -> kind == STRUCTURE 
+            && strcmp(ref -> name, ref -> tp -> u.structure -> sname) == 0)
+             || 
+               (s -> tp -> kind == STRUCTURE 
+            && strcmp(s -> name, s -> tp -> u.structure -> sname) == 0))
                 return 1;
 
             else if(ref -> tp -> kind == FUNCTION ||

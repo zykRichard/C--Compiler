@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include "semantic.h"
 extern int stack_top;
+int AnonyStruct = 0;
 
 char *err_msg[20] = {
     " reserved ",
@@ -122,8 +123,9 @@ type *StructSpecifier(Node *n){
         // OptTag -> e
         if(st -> childs == NULL){
             sname = (char *)malloc(2);
-            memset(sname, 0, sizeof(sname));
+            memset(sname, AnonyStruct, sizeof(sname));
             isAnony = 1;        
+            AnonyStruct ++;
         }
         // OptTag -> ID
         else {
@@ -133,12 +135,26 @@ type *StructSpecifier(Node *n){
             isAnony = 0;
         }
 
+        // Conflict Detection
+        sym *StructSym = hash_search(sname);
+        if(StructSym != NULL){
+            // Redefined Structure
+            ErrorReport(16, n -> lineno);
+            return NULL;
+        }
+
         Node *Dlist = st -> bros -> bros;
         type *StructSpecifier = NewType(STRUCTURE, sname, NULL, isAnony);
+
+        // LC 栈Push
+        stack_top ++;
         DefList(Dlist, StructSpecifier); // add FieldList to StructSpecifier
 
+        // Struct Definition , insert at stack[0]
+        hash_insert(NewSym(sname, StructSpecifier, 0), 0);
         // TODO : Conflict detection and Symbol insertion
-
+        // RC 栈Pop
+        stack_top --;
         return StructSpecifier;
     }
 
@@ -271,12 +287,14 @@ void Dec(Node *n, type *specifier, type *ScopeSpecifier){
         return ;
     }
 
-    if(strcmp(n -> childs -> bros -> token, "ASSIGNOP") == 0){
+    if(n -> childs -> bros && strcmp(n -> childs -> bros -> token, "ASSIGNOP") == 0){
         // initialized variable in structure field
         ErrorReport(15, n -> childs -> bros -> lineno);
         return ;
     }
-
+    
+    // 加入符号表
+    hash_insert(member, stack_top);
     // 创建Fieldlist
     FieldList *NewField = (FieldList *)malloc(sizeof(FieldList));
     char *newname = (char *)malloc(strlen(member -> name) + 1);
@@ -284,18 +302,19 @@ void Dec(Node *n, type *specifier, type *ScopeSpecifier){
     NewField -> name = newname;
     NewField -> tp = member -> tp;
     NewField -> nxt = ScopeSpecifier -> u.structure -> field;
+    ScopeSpecifier -> u.structure -> field = NewField;
    }
 
    else {
-    // TODO : function scope
     sym *member = VarDec(n -> childs, specifier);
     if(CheckForConflict(member)){
         // redefine variable in funtion 
         ErrorReport(3, n -> lineno);
         return;
     }
-
-    if(strcmp(n -> childs -> bros -> token, "ASSIGNOP") == 0){
+    
+    if((n -> childs -> bros != NULL) && 
+            (strcmp(n -> childs -> bros -> token, "ASSIGNOP") == 0)){
         Node *exp = n -> childs -> bros -> bros;
         type *to_copy = Exp(exp);
         member -> tp = to_copy;  // assignment
@@ -360,7 +379,55 @@ void VarList(Node *n, type *ScopeSpecifier){
                    | ParamDec
     */
 
-   // TODO 
+   // VarList 定义了函数体的形参，栈需要push
+    stack_top ++;
+
+    int argc = 0;
+
+    Node *tmp = n -> childs;
+    FieldList *cur = NULL;
+
+    // VarList -> ParamDec
+    FieldList *param = ParamDec(tmp);
+    param -> nxt = ScopeSpecifier -> u.function -> argv;
+    ScopeSpecifier -> u.function -> argv = param;
+    argc ++;
+
+    // VarList -> ParamDec COMMA VarList
+    while(tmp -> bros){
+        tmp = tmp -> bros -> bros -> childs;
+        param = ParamDec(tmp);
+        if(param){
+            param -> nxt = ScopeSpecifier -> u.function -> argv;
+            ScopeSpecifier -> u.function -> argv = param;
+            argc++;
+        }
+    }
+
+    ScopeSpecifier -> u.function -> argc = argc;
+    stack_top --;
+}
+
+
+FieldList *ParamDec(Node *n){
+    /*
+    ParamDec    ->    Specifier VarDec
+    */
+    type *specifier = Specifier(n -> childs);
+    sym *var = VarDec(n -> childs -> bros, specifier);
+    if(CheckForConflict(var)){
+        // Redefined Variable
+        ErrorReport(3, n -> lineno);
+        return NULL;
+    }
+    hash_insert(var, stack_top);
+    FieldList *NewField = (FieldList *)malloc(sizeof(FieldList));
+    char *newname = (char *)malloc(strlen(var -> name) + 1);
+    strcpy(newname, var -> name);
+    NewField -> name = newname;
+    NewField -> tp = var -> tp;
+    NewField -> nxt = NULL;
+    return NewField;
 }
 
 void StmtList(Node *n, type *ReturnSpecifier){
@@ -419,6 +486,13 @@ void Stmt(Node *n, type *ReturnSpecifier){
             // Stmt   ->   IF LP Exp RP Stmt ELSE Stmt
             if(stmt -> bros != NULL) Stmt(stmt -> bros -> bros, ReturnSpecifier);
     }
+    // Stmt   ->   WHILE LP Exp RP Stmt
+    else if(strcmp(n -> childs -> token, "WHILE") == 0){
+            Node *stmt = n -> childs -> bros -> bros -> bros -> bros;
+            Node *exp = n -> childs -> bros -> bros;
+            type *k = Exp(exp);
+            Stmt(stmt, ReturnSpecifier);
+    }
 
 }
 
@@ -432,14 +506,14 @@ type *Exp(Node *n){
                     |   Exp MINUS Exp
                     |   Exp STAR Exp
                     |   Exp DIV Exp
-                    |   LP Exp Rp
+                    |   LP Exp RP
                     |   MINUS Exp %prec UMINUS
                     |   NOT Exp
                     |   ID LP Args RP
                     |   ID LP RP
-                    |   Exp LB Exp RB
-                    |   Exp DOT ID
-                    |   ID
+                    |   Exp LB Exp RB    数组赋值可行
+                    |   Exp DOT ID       结构体成员赋值可行
+                    |   ID               变量赋值可行
                     |   INT
                     |   FLOAT
     */
@@ -455,7 +529,6 @@ type *Exp(Node *n){
             Node *op = c -> bros;
             if(strcmp(op -> token, "ASSIGNOP") == 0){
                 // Assignment
-                
                 if(strcmp(c -> childs -> token, "INT") == 0 ||
                          strcmp(c -> childs -> token, "FLOAT") == 0){
                     
@@ -466,14 +539,101 @@ type *Exp(Node *n){
 
                 
                 else {
-                    // TODO : other error in assignment
+                    Node *cc = c -> childs;
+                    if((strcmp(cc -> token, "ID") == 0 && cc -> bros == NULL) ||
+                       (strcmp(cc -> token, "Exp") == 0 && cc -> bros != NULL && strcmp(cc -> bros -> token, "DOT") == 0) ||
+                       (strcmp(cc -> token, "Exp") == 0 && cc -> bros != NULL && strcmp(cc -> bros -> token, "LB") == 0))
+                        { 
+                            if(!TypeCheck(p1, p2)){
+                                // 类型不匹配
+                                ErrorReport(5, c -> lineno);
+                                return NULL;
+                            }
+                            else
+                                return p1;
+                        }
+                    
+                    else {
+                        // 左值报错
+                        ErrorReport(6, c -> lineno);
+                        return NULL;
+                    }
+                    
                 }
             }
-
-            // TODO : other operator
+            /*
+            Exp     ->     Exp AND Exp
+                    ->     Exp OR Exp
+                    ->     Exp RELOP Exp
+                    ->     Exp PLUS Exp
+                    ->     Exp MINUS Exp
+                    ->     Exp STAR Exp
+                    ->     Exp DIV Exp
+            */
+            else {
+                // 考虑到每一行只能报一个错，若某个Exp返回NULL，意味着这行已经报错，不需要再报错
+                // 非BASIC类型运算
+                if(p1 && p2 && ((p1 -> kind != BASIC) || (p2 -> kind != BASIC))){
+                    ErrorReport(7, c -> lineno);
+                    return NULL;
+                }
+                else if(!TypeCheck(p1, p2)) {
+                    // BASIC类型不匹配
+                    ErrorReport(7, c -> lineno);
+                    return NULL;
+                }
+            }
         }
 
+    // Exp  ->  Exp LB Exp RB
+    else if(strcmp(c -> bros -> token, "LB") == 0){
+        // array
+        type *p1 = Exp(c);
+        type *p2 = Exp(c -> bros -> bros);
+        if(p1 && p1 -> kind != ARRAY){
+            // 非法使用[]
+            ErrorReport(10, n -> lineno);
+            return NULL;
+        }
+        else if(p2 && (p2 -> kind != BASIC || p2 -> u.basic != 0)){
+            // 索引出现浮点数
+            ErrorReport(12, n -> lineno);
+            return NULL;
+        }
+
+        else return p1 -> u.arr -> entry;
+    }
+
+    // Exp   ->   Exp DOT ID
+    else if(strcmp(c -> bros -> token, "DOT") == 0){
+        type *p1 = Exp(c);
+        if(p1 && p1 -> kind != STRUCTURE){
+            // 非结构体类型使用DOT
+            ErrorReport(13, n -> lineno);
+            return NULL;
+        }
+        else {
+            Node *id = c -> bros -> bros;
+            FieldList *members = p1 -> u.structure -> field;
+
+            while(members){
+                if(strcmp(members -> name, id -> content) == 0)
+                    return members -> tp;
+
+                members = members -> nxt;
+            }
+
+            assert(members == NULL);
+            // 访问不存在的域
+            ErrorReport(14, n -> lineno);
+            return NULL;
+        }
+    }
    }
+
+    
+
+   
 
 
    /*
@@ -543,6 +703,59 @@ type *Exp(Node *n){
     }
 }
 
+
+
 void Args(Node *n, type *ScopeSpecifier){
-    // TODO
+    /*
+    Args    ->    Exp COMMA Args
+                | Exp
+    */
+   // WARNING : 
+   // 在VarList的处理中，靠前的参数存在链表的后面，这里需要构建一个对Args的反向链表
+   Node *tmp = n;
+   FieldList *args = NULL;
+   int arg_c = 0;
+
+   while(tmp -> childs -> bros != NULL){
+        Node *exp = tmp -> childs;
+        type *r_exp = Exp(exp);
+        FieldList *newentry = (FieldList *)malloc(sizeof(FieldList));
+        newentry -> tp = r_exp;
+        newentry -> nxt = args;
+        args = newentry;
+
+        arg_c ++;
+        tmp = tmp -> childs -> bros -> bros;
+   }
+   // 少了一个参数，需要补上
+   FieldList *newentry = (FieldList *)malloc(sizeof(FieldList));
+   newentry -> tp = Exp(tmp -> childs);
+   newentry -> nxt = args;
+   args = newentry;
+   arg_c ++;
+
+   FieldList *FunField = ScopeSpecifier -> u.function -> argv;
+   int argc = ScopeSpecifier -> u.function -> argc;
+
+   if(arg_c != argc){
+    // arguments number unmatched
+        ErrorReport(9, n -> lineno);
+        return ;
+   }
+
+   // 对比两个fieldlist
+   else {
+        while(args){
+            if(!TypeCheck(args -> tp, FunField -> tp)){
+                // arguments type unmatched
+                ErrorReport(9, n -> lineno);
+                return ;
+            }
+            args = args -> nxt;
+            FunField = FunField -> nxt;
+        }
+        assert(args == NULL);
+        assert(FunField == NULL);
+   }
+   return ;
 }
