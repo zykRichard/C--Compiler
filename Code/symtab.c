@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include "common.h"
+#include "semantic.h"
 
 
 sym *hash_table[0x3fff] = {0};
@@ -13,6 +13,11 @@ int stack_top = 0;
 
 // member function for sym structure
 // hash table
+void TableInit(){
+    memset(hash_table, 0, sizeof(hash_table));
+    memset(stack, 0, sizeof(stack));
+}
+
 unsigned int hash_pjw(char *name){
     unsigned int val = 0, i;
     for (; *name; ++name){
@@ -37,12 +42,28 @@ sym* hash_search(char *name){
     sym *hash_head = hash_table[pos];
     while(hash_head){
         if((strcmp(hash_head -> name, name) == 0) && (hash_head -> StackDepth <= stack_top))
+            // 越是内层的符号越是排在hash表的前面，因此第一次返回的一定是最靠内层定义的符号
              return hash_head;
         hash_head = hash_head -> nxt_sym;
     }
     return NULL;
 }
 
+void StackPush(){
+
+    stack_top ++;
+    stack[stack_top] = NULL;
+}
+
+void StackPop(){
+    sym *ToBeNull = stack[stack_top];
+    while(ToBeNull && ToBeNull -> StackDepth != (unsigned int) (-1)){
+        ToBeNull -> StackDepth = (unsigned int) (-1);
+        ToBeNull = ToBeNull -> nxt_field;
+    } 
+    stack_top --;
+    
+}
 
 // Generation new node
 type *NewType(NodeKind kind, ...){
@@ -83,6 +104,8 @@ type *NewType(NodeKind kind, ...){
         f -> argc = va_arg(vaList, int);
         f -> argv = va_arg(vaList, FieldList*);
         f -> ret = va_arg(vaList, type*);
+        f -> lineno = va_arg(vaList, int);
+        f -> isDef = va_arg(vaList, int);
         tp -> u.function = f;
         break;
 
@@ -112,6 +135,8 @@ int CheckForConflict(sym *s){
     sym *ref = hash_search(s -> name); 
     if(ref == NULL) return 0;
     while(ref){
+        while(ref && ref -> StackDepth == (unsigned int)(-1)) ref = ref -> nxt_sym;
+        if(ref == NULL) return 0;
         if(strcmp(ref -> name, s -> name) == 0){
             if((ref -> tp -> kind == STRUCTURE 
             && strcmp(ref -> name, ref -> tp -> u.structure -> sname) == 0)
@@ -120,23 +145,106 @@ int CheckForConflict(sym *s){
             && strcmp(s -> name, s -> tp -> u.structure -> sname) == 0))
                 return 1;
 
-            else if(ref -> tp -> kind == FUNCTION ||
-                    s -> tp -> kind == FUNCTION)
-                return 1;
+            else if(s -> tp -> kind == FUNCTION){
+                // 只关心重复定义问题
+                if(ref -> tp -> kind != FUNCTION)  
+                    return 1;
+                else {
+                    if((s -> tp -> u.function -> isDef == 1) &&
+                        (ref -> tp -> u.function -> isDef == 1))
+                        return 1;
+                }
+            }
+            
 
             else if(ref -> StackDepth <= stack_top)
                 return 1;
         }
 
         ref = ref -> nxt_sym;
+        
     }
     return 0;
 }
 
+
+int FuncConflictCheck(sym *func){
+    sym *ref = hash_search(func -> name);
+    if(ref == NULL) return 0;
+    while(ref && ref -> StackDepth == (unsigned int)(-1)) ref = ref -> nxt_sym;
+    if(ref == NULL) return 0;
+    if(func -> tp -> u.function -> isDef == 1){
+        // 只关心定义声明不匹配
+        assert(ref -> tp -> kind == FUNCTION);
+        assert(ref -> tp -> u.function -> isDef == 0);
+        
+        fun *f = func -> tp -> u.function;
+        fun *f_ref = ref -> tp -> u.function;
+        if(f -> argc != f_ref -> argc) return 1;
+        if(!TypeCheck(f -> ret, f_ref -> ret)) return 1;
+        FieldList *argv1 = f -> argv;
+        FieldList *argv2 = f_ref -> argv;
+        while(argv1)
+        {
+            if(!TypeCheck(argv1 -> tp, argv2 -> tp))
+                return 1;
+            argv1 = argv1 -> nxt;
+            argv2 = argv2 -> nxt;
+        }
+        assert(argv1 == NULL);
+        assert(argv2 == NULL);
+
+        return 0;
+    }
+
+    else if(func -> tp -> u.function -> isDef == 0){
+        // 只关心多次声明冲突或声明定义不匹配
+        assert(ref -> tp -> kind == FUNCTION);
+
+        fun *f = func -> tp -> u.function;
+        fun *f_ref = ref -> tp -> u.function;
+        if(f -> argc != f_ref -> argc) return 1;
+        if(!TypeCheck(f -> ret, f_ref -> ret)) return 1;
+        FieldList *argv1 = f -> argv;
+        FieldList *argv2 = f_ref -> argv;
+        while(argv1)
+        {
+            if(!TypeCheck(argv1 -> tp, argv2 -> tp))
+                return 1;
+            argv1 = argv1 -> nxt;
+            argv2 = argv2 -> nxt;
+        }
+        assert(argv1 == NULL);
+        assert(argv2 == NULL);
+
+        return 0;
+
+    }
+    return 1;
+}
+
+int StructTypeCheck(type *t1, type *t2){
+    assert(t1 -> kind == STRUCTURE && t2 -> kind == STRUCTURE);
+    structure *s1 = t1 -> u.structure;
+    structure *s2 = t2 -> u.structure;
+    FieldList *cur1 = s1 -> field;
+    FieldList *cur2 = s2 -> field;
+    while(cur1 && cur2){
+        if(!TypeCheck(cur1 -> tp, cur2 -> tp))
+            return 0;
+        cur1 = cur1 -> nxt;
+        cur2 = cur2 -> nxt;
+    }
+    if(cur1 == NULL && cur2 == NULL)
+        return 1;
+    else return 0;
+}
+
+
+
+
 int TypeCheck(type *t1, type *t2){
     if(t1 == NULL || t2 == NULL) return 1;
-    if(t1 -> kind == FUNCTION || 
-            t2 -> kind == FUNCTION) return 0;
     if(t1 -> kind != t2 -> kind) return 0;
     else {
         switch(t1 -> kind){
@@ -145,8 +253,9 @@ int TypeCheck(type *t1, type *t2){
             case ARRAY:
                 return TypeCheck(t1 -> u.arr -> entry, t2 -> u.arr -> entry);
             case STRUCTURE:
-                return !strcmp(t1 -> u.structure -> sname, 
-                                    t2 -> u.structure -> sname);
+                return StructTypeCheck(t1, t2);
+            case FUNCTION:
+                return 0;
 
         }
     }

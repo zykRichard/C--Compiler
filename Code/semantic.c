@@ -6,7 +6,8 @@
 #include "semantic.h"
 extern int stack_top;
 int AnonyStruct = 0;
-
+int FunDefNum = 0;
+sym *funcs[999];
 char *err_msg[20] = {
     " reserved ",
     "Undefined variables",
@@ -31,6 +32,12 @@ char *err_msg[20] = {
 };
 
 // Global Function
+void LexicalAnalysis(Node *AST){
+    TreeTraverse(AST);
+    FunNotDefCheck();
+}
+
+
 void TreeTraverse(Node *root){
     if(root == NULL) return ;
     if(strcmp(root -> token, "ExtDef") == 0) ExtDef(root);
@@ -46,6 +53,35 @@ static inline void ErrorReport(int code, int lineno){
 }
 
 
+void FunNotDefCheck(){
+    for(int i = 0; i < FunDefNum; i++){
+        int flag = 0;
+        sym *hash_head = hash_search(funcs[i] -> name);
+        while(hash_head && hash_head -> StackDepth == (unsigned int)(-1))
+            hash_head = hash_head -> nxt_sym;
+        if(hash_head == NULL)
+            ErrorReport(18, funcs[i] -> tp -> u.function -> lineno);
+        else {
+            
+            while(hash_head){
+                if(strcmp(hash_head -> name, funcs[i] -> name) == 0){
+                    assert(hash_head -> tp -> kind == FUNCTION);
+                    if(hash_head -> tp -> u.function -> isDef == 1){
+                        // match successfully
+                        flag = 1;
+                        break;
+                    }
+                }
+                hash_head = hash_head -> nxt_sym;
+                while(hash_head && hash_head -> StackDepth == (unsigned int)(-1))
+                    hash_head = hash_head -> nxt_sym;
+                }
+            }
+            if(!flag) ErrorReport(18, funcs[i] -> tp -> u.function -> lineno);
+        }
+    }
+
+
 // Symbol Table Generation
 // directly check every ExtDef
 
@@ -55,6 +91,7 @@ void ExtDef(Node *n){
     ExtDef     ->    Specifier ExtDecList SEMI
                  |   Specifier SEMI
                  |   Specifier FunDec CompSt
+                 |   Specifier FunDec SEMI
     */
 
     Node *sp = n -> childs;
@@ -73,8 +110,16 @@ void ExtDef(Node *n){
     // Get Specifier, Give to FunDec and CompSt
     // FunDec add function symbol, CompSt process function body and check return type
     else if(strcmp(sp -> bros -> token, "FunDec") == 0){
-        FunDec(sp -> bros, specifier);
+        // Function definition
+        if (strcmp(sp -> bros -> bros -> token, "CompSt") == 0){
+        FunDec(sp -> bros, specifier, 1);
         CompSt(sp -> bros -> bros, specifier);
+    }   
+        // Function declaration
+        else {
+            FunDec(sp -> bros, specifier, 0);
+                // TODO
+        }
     }
 
     // TODO : clean process 
@@ -147,14 +192,14 @@ type *StructSpecifier(Node *n){
         type *StructSpecifier = NewType(STRUCTURE, sname, NULL, isAnony);
 
         // LC 栈Push
-        stack_top ++;
+        StackPush();
         DefList(Dlist, StructSpecifier); // add FieldList to StructSpecifier
 
         // Struct Definition , insert at stack[0]
         hash_insert(NewSym(sname, StructSpecifier, 0), 0);
         // TODO : Conflict detection and Symbol insertion
         // RC 栈Pop
-        stack_top --;
+        StackPop();
         return StructSpecifier;
     }
 
@@ -328,12 +373,12 @@ void Dec(Node *n, type *specifier, type *ScopeSpecifier){
 
 
 
-void FunDec(Node *n, type* ReturnSpecifier){
+void FunDec(Node *n, type* ReturnSpecifier, int isDef){
     /*
     FunDec       ->     ID LP VarList RP
                     |   ID LP RP
     */
-   type *newfun = NewType(FUNCTION, 0, NULL, ReturnSpecifier);
+   type *newfun = NewType(FUNCTION, 0, NULL, ReturnSpecifier, n -> lineno, isDef);
    Node *IDnode = n -> childs;
    
 
@@ -341,16 +386,29 @@ void FunDec(Node *n, type* ReturnSpecifier){
    if(strcmp(VarNode -> token, "VarList") == 0){
         VarList(VarNode, newfun); // update argc and argv
    }
+
   
    // 函数定义都在最外部，即depth = 0;
    sym *f = NewSym(IDnode -> content, newfun, 0);
-   if(CheckForConflict(f)){
-        // redefine of function
-        ErrorReport(4, n -> lineno);
-        return ;
-   }
 
-   hash_insert(f, 0);
+   if(CheckForConflict(f)){
+            // redefine of function
+            ErrorReport(4, n -> lineno);
+            return ;
+    }
+
+    if(FuncConflictCheck(f)){
+            // Inconsistence
+            ErrorReport(19, n -> lineno);
+            return ;
+        }
+    hash_insert(f, 0);
+   
+    if(!isDef) {
+        funcs[FunDefNum] = f;
+        FunDefNum ++;
+    }
+   
 }
 
 
@@ -361,7 +419,7 @@ void CompSt(Node *n, type *ReturnSpecifier){
     */
 
    // 碰见LC，作用域改变，栈push
-   stack_top ++;
+   StackPush();
    
    Node *Dlist = n -> childs -> bros;
    DefList(Dlist, NULL); // 此时是非structure作用域，ScopeSpecifier设为NULL
@@ -369,7 +427,7 @@ void CompSt(Node *n, type *ReturnSpecifier){
    StmtList(slist, ReturnSpecifier);
 
    // 碰见RC，作用域改变，栈pop
-   stack_top --;
+   StackPop();
 }
 
 
@@ -380,7 +438,7 @@ void VarList(Node *n, type *ScopeSpecifier){
     */
 
    // VarList 定义了函数体的形参，栈需要push
-    stack_top ++;
+    StackPush();
 
     int argc = 0;
 
@@ -405,7 +463,7 @@ void VarList(Node *n, type *ScopeSpecifier){
     }
 
     ScopeSpecifier -> u.function -> argc = argc;
-    stack_top --;
+    StackPop();
 }
 
 

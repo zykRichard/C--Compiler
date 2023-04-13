@@ -56,6 +56,7 @@ ExtDefList:         /* empty */                             { $$ = NewNode(NULL,
 ExtDef:             Specifier ExtDecList SEMI               { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
 |                   Specifier SEMI                          { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 2, $1, $2); }
 |                   Specifier FunDec CompSt                 { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
+|                   Specifier FunDec SEMI                   { $$ = NewNode(NULL, "ExtDef", @$.first_line, LANG); NodeGen($$, 3, $1, $2, $3); }
 |                   error SEMI                              { synerror = 1;}
 ;
 

@@ -54,6 +54,8 @@ typedef struct fun_t {
     int argc;
     struct FieldList_t *argv;
     struct type_t *ret;
+    int lineno;
+    int isDef;
 } fun;
 
 typedef struct type_t {
@@ -85,7 +87,7 @@ typedef struct sym_t {
     struct sym_t *nxt_field;
     struct sym_t *nxt_sym;
 
-    int StackDepth;
+    unsigned int StackDepth;
 } sym;
 
 
@@ -93,5 +95,5 @@ typedef struct sym_t {
 
 // global function
 void TreeTraverse(Node *root);
-
+void LexicalAnalysis();
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */
