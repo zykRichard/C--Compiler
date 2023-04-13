@@ -8,31 +8,34 @@ extern int stack_top;
 int AnonyStruct = 0;
 int FunDefNum = 0;
 sym *funcs[999];
+int isFunDef[999];
 char *err_msg[20] = {
     " reserved ",
-    "Undefined variables",
-    "Undefined function" ,
-    "Redefined variable" ,
-    "Redefined function" ,
-    "Type mismatch for assignment" ,
-    "The left-hand side of an assignment must be a variable" ,
-    "Type mismatch for operands" ,
-    "Type mismatch for return" ,
-    "Function is not applicable for arguments" ,
-    "Variable is not an array" ,
-    "Variable is not a function" ,
-    "Index of an array must be an integer" ,
-    "Illegal use of \".\"" ,
-    "Non-existent field" ,
-    "Redefined member inside structure" ,
-    "Duplicated name" ,
-    "Undefined structure" ,
-    "Undefined function" ,
-    "Inconsistence of function declaration"
+    "Undefined variables.",
+    "Undefined function." ,
+    "Redefined variable." ,
+    "Redefined function." ,
+    "Type mismatch for assignment." ,
+    "The left-hand side of an assignment must be a variable." ,
+    "Type mismatch for operands." ,
+    "Type mismatch for return." ,
+    "Function is not applicable for arguments." ,
+    "Variable is not an array." ,
+    "Variable is not a function." ,
+    "Index of an array must be an integer." ,
+    "Illegal use of \".\"." ,
+    "Non-existent field." ,
+    "Redefined member inside structure, or make initialization of field variables." ,
+    "Duplicated name." ,
+    "Undefined structure." ,
+    "Undefined function." ,
+    "Inconsistence of function declaration."
 };
 
 // Global Function
 void LexicalAnalysis(Node *AST){
+    TableInit();
+    memset(isFunDef, 0, sizeof(isFunDef));
     TreeTraverse(AST);
     FunNotDefCheck();
 }
@@ -55,6 +58,7 @@ static inline void ErrorReport(int code, int lineno){
 
 void FunNotDefCheck(){
     for(int i = 0; i < FunDefNum; i++){
+        if(isFunDef[i]) continue;
         int flag = 0;
         sym *hash_head = hash_search(funcs[i] -> name);
         while(hash_head && hash_head -> StackDepth == (unsigned int)(-1))
@@ -181,12 +185,12 @@ type *StructSpecifier(Node *n){
         }
 
         // Conflict Detection
-        sym *StructSym = hash_search(sname);
-        if(StructSym != NULL){
-            // Redefined Structure
-            ErrorReport(16, n -> lineno);
-            return NULL;
-        }
+        // sym *StructSym = hash_search(sname);
+        // if(StructSym != NULL){
+        //     // Redefined Structure
+        //     ErrorReport(16, n -> lineno);
+        //     return NULL;
+        // }
 
         Node *Dlist = st -> bros -> bros;
         type *StructSpecifier = NewType(STRUCTURE, sname, NULL, isAnony);
@@ -196,10 +200,17 @@ type *StructSpecifier(Node *n){
         DefList(Dlist, StructSpecifier); // add FieldList to StructSpecifier
 
         // Struct Definition , insert at stack[0]
-        hash_insert(NewSym(sname, StructSpecifier, 0), 0);
+        // hash_insert(NewSym(sname, StructSpecifier, 0), 0);
         // TODO : Conflict detection and Symbol insertion
         // RC 栈Pop
-        StackPop();
+        StackPop(0);
+        sym *StructID = NewSym(sname, StructSpecifier, 0);
+        if(CheckForConflict(StructID)){
+            // Redefined Structure
+            ErrorReport(16, n -> lineno);
+            return NULL;
+        }
+        hash_insert(StructID, 0);
         return StructSpecifier;
     }
 
@@ -333,6 +344,14 @@ void Dec(Node *n, type *specifier, type *ScopeSpecifier){
     }
 
     if(n -> childs -> bros && strcmp(n -> childs -> bros -> token, "ASSIGNOP") == 0){
+        // 虽然报错,但该符号依然需要加入struct field里面
+        FieldList *NewField = (FieldList *)malloc(sizeof(FieldList));
+        char *newname = (char *)malloc(strlen(member -> name) + 1);
+        strcpy(newname, member -> name);
+        NewField -> name = newname;
+        NewField -> tp = member -> tp;
+        NewField -> nxt = ScopeSpecifier -> u.structure -> field;
+        ScopeSpecifier -> u.structure -> field = NewField;
         // initialized variable in structure field
         ErrorReport(15, n -> childs -> bros -> lineno);
         return ;
@@ -362,7 +381,11 @@ void Dec(Node *n, type *specifier, type *ScopeSpecifier){
             (strcmp(n -> childs -> bros -> token, "ASSIGNOP") == 0)){
         Node *exp = n -> childs -> bros -> bros;
         type *to_copy = Exp(exp);
-        member -> tp = to_copy;  // assignment
+        if(!TypeCheck(member -> tp, to_copy)){
+            // illegal assignment
+            ErrorReport(5, n -> lineno);
+            return ;
+        }
     }
 
     hash_insert(member, stack_top);
@@ -400,10 +423,30 @@ void FunDec(Node *n, type* ReturnSpecifier, int isDef){
     if(FuncConflictCheck(f)){
             // Inconsistence
             ErrorReport(19, n -> lineno);
+            // 为避免多次报错,需要用isfundef记下已经定义过的函数
+            if(isDef){
+                
+                for(int i = 0; i < FunDefNum; i++){
+                    if (strcmp(funcs[i] -> name, f -> name) == 0)
+                    {
+                        isFunDef[i] = 1;
+                        break;
+                    }
+                }
+            }
             return ;
         }
     hash_insert(f, 0);
-   
+    if(isDef){
+        for(int i = 0; i < FunDefNum; i++){
+                    if (strcmp(funcs[i] -> name, f -> name) == 0)
+                    {
+                        isFunDef[i] = 1;
+                        break;
+                    }
+                }
+    }
+
     if(!isDef) {
         funcs[FunDefNum] = f;
         FunDefNum ++;
@@ -427,7 +470,7 @@ void CompSt(Node *n, type *ReturnSpecifier){
    StmtList(slist, ReturnSpecifier);
 
    // 碰见RC，作用域改变，栈pop
-   StackPop();
+   StackPop(0);
 }
 
 
@@ -447,9 +490,11 @@ void VarList(Node *n, type *ScopeSpecifier){
 
     // VarList -> ParamDec
     FieldList *param = ParamDec(tmp);
+    if(param){
     param -> nxt = ScopeSpecifier -> u.function -> argv;
     ScopeSpecifier -> u.function -> argv = param;
     argc ++;
+    }
 
     // VarList -> ParamDec COMMA VarList
     while(tmp -> bros){
@@ -461,9 +506,13 @@ void VarList(Node *n, type *ScopeSpecifier){
             argc++;
         }
     }
-
+    int isDef = ScopeSpecifier -> u.function -> isDef;
     ScopeSpecifier -> u.function -> argc = argc;
-    StackPop();
+    if(isDef)
+        // 函数形参需要进入下一层，因此不销毁
+        StackPop(1);
+
+    else StackPop(0); // 函数声明，形参在右括号结束后销毁
 }
 
 
@@ -540,6 +589,12 @@ void Stmt(Node *n, type *ReturnSpecifier){
             Node *stmt = n -> childs -> bros -> bros -> bros -> bros;
             Node *exp = n -> childs -> bros -> bros;
             type *k = Exp(exp);
+            if(k && k -> kind != BASIC){
+                // if mismatch
+                ErrorReport(7, n -> lineno);
+            }
+            else if(k && k -> kind == BASIC && k -> u.basic != 0)
+                ErrorReport(7, n -> lineno);
             Stmt(stmt, ReturnSpecifier);
             // Stmt   ->   IF LP Exp RP Stmt ELSE Stmt
             if(stmt -> bros != NULL) Stmt(stmt -> bros -> bros, ReturnSpecifier);
@@ -549,6 +604,12 @@ void Stmt(Node *n, type *ReturnSpecifier){
             Node *stmt = n -> childs -> bros -> bros -> bros -> bros;
             Node *exp = n -> childs -> bros -> bros;
             type *k = Exp(exp);
+            if(k && k -> kind != BASIC){
+                // while mismatch
+                ErrorReport(7, n -> lineno);
+            }
+            else if(k && k -> kind == BASIC && k -> u.basic != 0)
+                ErrorReport(7, n -> lineno);
             Stmt(stmt, ReturnSpecifier);
     }
 
@@ -640,6 +701,7 @@ type *Exp(Node *n){
                     ErrorReport(7, c -> lineno);
                     return NULL;
                 }
+                return p1;
             }
         }
 
@@ -670,7 +732,7 @@ type *Exp(Node *n){
             ErrorReport(13, n -> lineno);
             return NULL;
         }
-        else {
+        else if(p1 && p1 -> kind == STRUCTURE){
             Node *id = c -> bros -> bros;
             FieldList *members = p1 -> u.structure -> field;
 
@@ -706,6 +768,12 @@ type *Exp(Node *n){
                 ErrorReport(1, c -> lineno);
                 return NULL;
         }
+        // 结构体名也不是变量
+            else if(IDsym -> tp -> kind == STRUCTURE && 
+                strcmp(IDsym -> name, IDsym -> tp -> u.structure -> sname) == 0){
+                    ErrorReport(1, c -> lineno);
+                    return NULL;
+                }
             else return (IDsym -> tp);
     }
         else {
@@ -744,6 +812,43 @@ type *Exp(Node *n){
         }
 
     }
+
+    /*
+    Exp      ->    LP Exp RP   
+    */
+
+    else if(strcmp(c -> token, "LP") == 0)
+        return Exp(c -> bros);
+
+    /*
+    Exp      ->    MINUS Exp %prec UMINUS
+    */
+
+    else if(strcmp(c -> token, "MINUS") == 0)
+    {
+        type *exp = Exp(c -> bros);
+        if(exp && exp -> kind != BASIC){
+            // MINUS mismatch
+            ErrorReport(7, c -> lineno);
+            return NULL;
+        }
+        return exp;
+    }
+
+    /*
+    Exp      ->   NOT Exp
+    */
+
+    else if(strcmp(c -> token, "NOT") == 0){
+        type *exp = Exp(c -> bros);
+        if(exp && (exp -> kind != BASIC || exp -> u.basic != 0)){
+            // NOT mismatch
+            ErrorReport(7, c -> lineno);
+            return NULL;
+        }
+        return exp;
+    }
+
     /*
     Exp      ->    INT
     */

@@ -21,7 +21,7 @@ int main(int argc, char **argv){
     
     yyparse();
     if(lexerror == 0 && synerror == 0)
-        {   TreePrint(root, 0);
+        {   //TreePrint(root, 0);
             LexicalAnalysis(root);
             }
     //printf("parser over file: %s finished", argv[1]);

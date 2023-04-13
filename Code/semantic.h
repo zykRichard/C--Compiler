@@ -9,6 +9,7 @@ void hash_insert(sym *s, int depth);
 sym* hash_search(char *name);
 
 // Assistance
+void TableInit();
 type *NewType(NodeKind kind, ...);
 sym *NewSym(char *name, type *tp, int depth);
 int CheckForConflict(sym *s);
@@ -17,7 +18,7 @@ int FuncConflictCheck(sym *func);
 void FunNotDefCheck();
 int TypeCheck(type *t1, type *t2);
 void StackPush();
-void StackPop();
+void StackPop(int DoNotTearDown);
 
 // Symbol Table
 void ExtDef(Node *n);

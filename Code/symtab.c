@@ -16,6 +16,7 @@ int stack_top = 0;
 void TableInit(){
     memset(hash_table, 0, sizeof(hash_table));
     memset(stack, 0, sizeof(stack));
+    
 }
 
 unsigned int hash_pjw(char *name){
@@ -52,15 +53,17 @@ sym* hash_search(char *name){
 void StackPush(){
 
     stack_top ++;
-    stack[stack_top] = NULL;
+    //stack[stack_top] = NULL;
 }
 
-void StackPop(){
+void StackPop(int DoNotTearDown){
+    if(!DoNotTearDown){
     sym *ToBeNull = stack[stack_top];
     while(ToBeNull && ToBeNull -> StackDepth != (unsigned int) (-1)){
         ToBeNull -> StackDepth = (unsigned int) (-1);
         ToBeNull = ToBeNull -> nxt_field;
     } 
+    }
     stack_top --;
     
 }
@@ -138,27 +141,27 @@ int CheckForConflict(sym *s){
         while(ref && ref -> StackDepth == (unsigned int)(-1)) ref = ref -> nxt_sym;
         if(ref == NULL) return 0;
         if(strcmp(ref -> name, s -> name) == 0){
-            if((ref -> tp -> kind == STRUCTURE 
-            && strcmp(ref -> name, ref -> tp -> u.structure -> sname) == 0)
-             || 
-               (s -> tp -> kind == STRUCTURE 
-            && strcmp(s -> name, s -> tp -> u.structure -> sname) == 0))
+           // 一定冲突的三种特殊情况特判
+           // 1. ref 或 s 其中一个是结构体名
+           if((ref -> tp -> kind == STRUCTURE && strcmp(ref -> name, ref -> tp -> u.structure -> sname) == 0)
+            || (s -> tp -> kind == STRUCTURE && strcmp(ref -> name, ref -> tp -> u.structure -> sname) == 0))
+                return 1;
+           // 2. ref 和 s 都是 function 且都是isdef
+           if(ref -> tp -> kind == FUNCTION && s -> tp -> kind == FUNCTION
+           && ref -> tp -> u.function -> isDef && ref -> tp -> u.function -> isDef)
                 return 1;
 
-            else if(s -> tp -> kind == FUNCTION){
-                // 只关心重复定义问题
-                if(ref -> tp -> kind != FUNCTION)  
-                    return 1;
-                else {
-                    if((s -> tp -> u.function -> isDef == 1) &&
-                        (ref -> tp -> u.function -> isDef == 1))
-                        return 1;
-                }
-            }
-            
-
-            else if(ref -> StackDepth <= stack_top)
+            // 3. ref 和 s 中有一个是function 另一个不是
+            if((ref -> tp -> kind == FUNCTION && s -> tp -> kind != FUNCTION)
+            || (ref -> tp -> kind != FUNCTION && s -> tp -> kind == FUNCTION))
                 return 1;
+
+            // 其他情况:
+            // 直接比较作用域
+            assert(ref -> StackDepth != (unsigned int)(-1));
+            // 函数体除外
+            if(s -> tp -> kind != FUNCTION)
+                if(ref -> StackDepth >= s -> StackDepth) return 1;
         }
 
         ref = ref -> nxt_sym;
