@@ -16,6 +16,28 @@ int stack_top = 0;
 void TableInit(){
     memset(hash_table, 0, sizeof(hash_table));
     memset(stack, 0, sizeof(stack));
+
+    // add read function :
+    // int read ();
+    
+    type *rd = NewType(FUNCTION, 0, NULL, 
+                    NewType(BASIC, 0), -1, 1);
+    
+    sym *read = NewSym("read", rd, 0);
+    hash_insert(read, 0);
+    // add write function :
+    // int write (int arg);
+
+    FieldList *argv = (FieldList *)malloc(sizeof(FieldList));
+    argv -> name = "arg";
+    argv -> tp = NewType(BASIC, 0);
+    argv -> nxt = NULL;
+
+    type *wt = NewType(FUNCTION, 1, argv, 
+                    NewType(BASIC, 0), -1, 1);
+    
+    sym *write = NewSym("write", wt, 0);
+    hash_insert(write, 0);
     
 }
 

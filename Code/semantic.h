@@ -24,7 +24,7 @@ void StackPop(int DoNotTearDown);
 void ExtDef(Node *n);
 void ExtDecList(Node *n, type* specifier);
 type *Specifier(Node *n);
-type *StructSpecifier(Node *n); // 统一处理opttag 和 tag
+type *StructSpecifier(Node *n); 
 sym *VarDec(Node *n, type* specifier);
 void FunDec(Node *n, type* ReturnSpecifier, int isDef);
 void VarList(Node *n, type *ScopeSpecifier);

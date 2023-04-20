@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-
+// Lab 1 : AST Node 
 typedef enum nodetype{
     TOKEN_ID,          // ID
     TOKEN_TYPE,        // INT|FLOAT
@@ -17,6 +17,39 @@ typedef enum nodekind{
     STRUCTURE,  // structure
     FUNCTION
 } NodeKind;
+
+typedef enum _opkind {
+        VARIABLE_OP,
+        CONSTANT_OP,
+        ADDRESS_OP,
+        LABEL_OP,
+        FUNCTION_OP,
+        RELOP_OP,
+} OpKind;
+
+typedef enum _irkind {
+     LABEL_IR,         // single OP
+     FUNCTION_IR,      // single OP
+     ASSIGN_IR,        // assign OP
+     ADD_IR,           // binary OP
+     SUB_IR,           // binary OP
+     MUL_IR,           // binary OP
+     DIV_IR,           // binary OP
+     GADDR_IR,         // assign OP
+     RADDR_IR,         // assign OP
+     WADDR_IR,         // assign OP
+     GOTO_IR,          // single OP
+     IF_IR,            // if-goto OP
+     RETURN_IR,        // single OP
+     DEC_IR,           // dec OP
+     ARG_IR,           // single OP
+     CALL_IR,          // assign OP
+     PARAM_IR,         // single OP
+     READ_IR,          // single OP
+     WRITE_IR,         // single OP
+} IrKind;
+
+
 typedef struct Node {
     union {
         int int_val;
@@ -31,6 +64,8 @@ typedef struct Node {
     struct Node *childs; 
 } Node;
 
+
+// Lab 2 : Semantic Analysis
 typedef struct FieldList_t {
     char *name;
     struct type_t *tp;
@@ -96,4 +131,49 @@ typedef struct sym_t {
 // global function
 void TreeTraverse(Node *root);
 void LexicalAnalysis();
+
+
+// Lab 3 : Intercode 
+typedef struct _operand {
+    OpKind kind;
+
+    union {
+        int value;
+        char *name;
+    } id;
+} Operand;
+
+typedef struct _ir {
+    IrKind kind;
+
+    union 
+    {
+        struct {Operand *left; Operand *right; } Assign;
+        struct {Operand *op;} Single;
+        struct {Operand *result; Operand *op1; Operand *op2;} Binary;
+        struct {Operand *x; Operand *relop; Operand *y; Operand *z;} IfGoto;
+        struct {Operand *x; int sz;} Dec;
+        
+    } IR_Type;
+    
+    
+} IR;
+
+// Linklist Intercode Representation
+typedef struct _intercode {
+    IR *IRcode;
+    struct _intercode *prev, *next;
+} Intercode;
+
+
+// InterCodes LinkList
+typedef struct _intercodelist {
+    Intercode *head;
+    Intercode *tail;
+
+    int TempVarNum_t;
+    int TempVarNum_v;
+    int TempLabelNum;
+} InterCodeList;
+
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */
