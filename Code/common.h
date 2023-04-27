@@ -171,9 +171,25 @@ typedef struct _intercodelist {
     Intercode *head;
     Intercode *tail;
 
-    int TempVarNum_t;
-    int TempVarNum_v;
-    int TempLabelNum;
+    /*
+    PARAM ARG 用 v
+    其余用t
+    */
+   
+    int TempVarNum_t; // t variables
+    int TempVarNum_v; // v variables
+    int TempLabelNum; // label 
 } InterCodeList;
+
+// Args
+typedef struct arg{
+    Operand *op;
+    struct arg *next;
+} Arg;
+
+typedef struct arglist{
+    Arg *head;
+    Arg *tail;
+} Arglist;
 
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */

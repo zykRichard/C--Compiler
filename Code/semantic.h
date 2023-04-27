@@ -7,7 +7,7 @@
 unsigned int hash_pjw(char *name);
 void hash_insert(sym *s, int depth);
 sym* hash_search(char *name);
-
+unsigned int GetTypeSz(type *tp);
 // Assistance
 void TableInit();
 type *NewType(NodeKind kind, ...);

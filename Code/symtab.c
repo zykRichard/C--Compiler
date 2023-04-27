@@ -29,7 +29,7 @@ void TableInit(){
     // int write (int arg);
 
     FieldList *argv = (FieldList *)malloc(sizeof(FieldList));
-    argv -> name = "arg";
+    argv -> name = "c";
     argv -> tp = NewType(BASIC, 0);
     argv -> nxt = NULL;
 
@@ -70,6 +70,25 @@ sym* hash_search(char *name){
         hash_head = hash_head -> nxt_sym;
     }
     return NULL;
+}
+
+
+unsigned int GetTypeSz(type *tp){
+    assert(tp -> kind != FUNCTION);
+    switch(tp -> kind){
+        case BASIC: 
+            return 4;
+        case ARRAY:
+            return (tp -> u.arr -> sz) * GetTypeSz(tp -> u.arr -> entry);
+        case STRUCTURE:
+            FieldList *members = tp -> u.structure -> field;
+            unsigned int sz = 0;
+            while(members){
+                sz = sz + GetTypeSz(members -> tp); // 一定是4的倍数
+                members = members -> nxt;
+            }
+            return sz; 
+    }
 }
 
 void StackPush(){
