@@ -123,6 +123,8 @@ typedef struct sym_t {
     struct sym_t *nxt_sym;
 
     unsigned int StackDepth;
+    int TempVar;
+    int isAddr;
 } sym;
 
 
@@ -141,6 +143,8 @@ typedef struct _operand {
         int value;
         char *name;
     } id;
+
+    type *tp;
 } Operand;
 
 typedef struct _ir {
@@ -177,7 +181,6 @@ typedef struct _intercodelist {
     */
    
     int TempVarNum_t; // t variables
-    int TempVarNum_v; // v variables
     int TempLabelNum; // label 
 } InterCodeList;
 
@@ -191,5 +194,7 @@ typedef struct arglist{
     Arg *head;
     Arg *tail;
 } Arglist;
+
+void InterCodesGenerator(Node *AST, char *filename);
 
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */

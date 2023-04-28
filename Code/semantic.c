@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "semantic.h"
-extern int stack_top;
+extern unsigned int stack_top;
 int AnonyStruct = 0;
 int FunDefNum = 0;
 sym *funcs[999];
@@ -38,6 +38,7 @@ void LexicalAnalysis(Node *AST){
     memset(isFunDef, 0, sizeof(isFunDef));
     TreeTraverse(AST);
     FunNotDefCheck();
+    stack_top = (unsigned int)(-1); // for Lab 3;
 }
 
 
@@ -281,8 +282,14 @@ sym *VarDec(Node *n, type* specifier){
     else if(strcmp(n -> childs -> token, "VarDec") == 0){
         sym *subsym = VarDec(n -> childs, specifier);
         int sz = n -> childs -> bros -> bros -> int_val;
-        return NewSym(subsym -> name, 
-            NewType(ARRAY, subsym -> tp, sz), stack_top);
+        type *newtp = NewType(ARRAY, specifier, sz);
+        type *curtp = subsym -> tp;
+        while(curtp != specifier){
+            curtp = curtp -> u.arr->entry;
+        }
+        curtp -> kind = ARRAY;
+        curtp -> u.arr = newtp -> u.arr;
+        return subsym;
 
     }
         

@@ -8,7 +8,7 @@
 
 sym *hash_table[0x3fff] = {0};
 sym *stack[0x3fff] = {0};
-int stack_top = 0;
+unsigned int stack_top = 0;
 
 
 // member function for sym structure
@@ -80,14 +80,15 @@ unsigned int GetTypeSz(type *tp){
             return 4;
         case ARRAY:
             return (tp -> u.arr -> sz) * GetTypeSz(tp -> u.arr -> entry);
-        case STRUCTURE:
+        case STRUCTURE:{
             FieldList *members = tp -> u.structure -> field;
             unsigned int sz = 0;
             while(members){
                 sz = sz + GetTypeSz(members -> tp); // 一定是4的倍数
                 members = members -> nxt;
             }
-            return sz; 
+            return sz;
+        } 
     }
 }
 
@@ -171,6 +172,7 @@ sym *NewSym(char *name, type* tp, int depth){
     strcpy(s -> name, name);
     s -> tp = tp;
     s -> StackDepth = depth;
+    s -> TempVar = 0;
     return s;
 }
 
