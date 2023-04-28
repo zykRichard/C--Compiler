@@ -283,12 +283,14 @@ sym *VarDec(Node *n, type* specifier){
         sym *subsym = VarDec(n -> childs, specifier);
         int sz = n -> childs -> bros -> bros -> int_val;
         type *newtp = NewType(ARRAY, specifier, sz);
-        type *curtp = subsym -> tp;
-        while(curtp != specifier){
-            curtp = curtp -> u.arr->entry;
-        }
-        curtp -> kind = ARRAY;
-        curtp -> u.arr = newtp -> u.arr;
+        if(subsym -> tp == specifier)
+            subsym -> tp = newtp;
+        else {
+            type *curtp = subsym -> tp;
+            while(curtp -> u.arr -> entry != specifier)
+                curtp = curtp -> u.arr -> entry;
+            curtp -> u.arr -> entry = newtp;
+        } 
         return subsym;
 
     }

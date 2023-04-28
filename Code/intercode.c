@@ -162,7 +162,7 @@ Operand *FindSetNewOpID(sym* s, OpKind kind){
     }
 
     else {
-        char *sname = (char *)malloc(8);
+        char *sname = (char *)malloc(16);
         sprintf(sname, "t%d", s -> TempVar);
         if(s -> isAddr == 1)
             ret = NewOperand(ADDRESS_OP, sname);
@@ -827,9 +827,95 @@ void TranslateExp(Node *n, Operand *place, int LorR){
                 InterCodeInsert(NewInterCode(NewIR(ASSIGN_IR, place, t1)), InterCodes);
         }
         
-        
+       // Exp   ->  Exp LB Exp RB 
        else if(strcmp(n -> childs -> bros -> token, "LB") == 0){
-        // TODO 
+            // Exp1   ->   ID
+            //        ->   LP Exp RP
+             if(strcmp(n -> childs -> childs -> token, "ID") == 0){
+                Operand *t = NewTempt(InterCodes);
+                TranslateExp(n -> childs, t, 0);
+                // t一定是数组
+                assert(t -> tp -> kind == ARRAY);
+                //assert(t -> kind == ADDRESS_OP);
+                Operand *id = NewTempt(InterCodes); // id = Exp (CONSTANT)
+                TranslateExp(n -> childs -> bros -> bros, id, 0);
+                Operand *offset = NewTempt(InterCodes);
+                InterCodeInsert(NewInterCode(NewIR(MUL_IR, offset, id, 
+                                    NewOperand(CONSTANT_OP, GetTypeSz(t -> tp -> u.arr -> entry)))), InterCodes); 
+                Operand *trueaddr = NewTempt(InterCodes);
+                trueaddr -> kind = ADDRESS_OP;
+                if(LorR == -1){
+                    // 左边被赋值
+                    if(t -> kind == VARIABLE_OP){
+                        Operand *addr = NewTempt(InterCodes);
+                        addr -> kind = ADDRESS_OP;
+                        InterCodeInsert(NewInterCode(NewIR(GADDR_IR, addr, t)), InterCodes);
+                        InterCodeInsert(NewInterCode(NewIR(ADD_IR, trueaddr, addr, offset)), InterCodes);
+                    }
+                    else if(t -> kind == ADDRESS_OP){
+                        InterCodeInsert(NewInterCode(NewIR(ADD_IR, trueaddr, t, offset)), InterCodes);
+                    }
+                    *place = *trueaddr;
+                    place -> tp = t -> tp -> u.arr -> entry;
+                }
+
+                else {
+                    // 右边赋值
+                    if(t -> kind == VARIABLE_OP){
+                        Operand *addr = NewTempt(InterCodes);
+                        addr -> kind = ADDRESS_OP;
+                        InterCodeInsert(NewInterCode(NewIR(GADDR_IR, addr, t)), InterCodes);
+                        InterCodeInsert(NewInterCode(NewIR(ADD_IR, trueaddr, addr, offset)), InterCodes);
+                    }
+                    else if(t -> kind == ADDRESS_OP){
+                        InterCodeInsert(NewInterCode(NewIR(ADD_IR, trueaddr, t, offset)), InterCodes);
+                    }
+                    Operand *CopyPlace = NewOperand(VARIABLE_OP, " ");
+                    *CopyPlace = *place;
+                    InterCodeInsert(NewInterCode(NewIR(RADDR_IR, CopyPlace, trueaddr)), InterCodes);
+                    place -> tp = t -> tp -> u.arr -> entry;
+                }
+        }
+            //Exp1  -> Exp LB Exp RB
+            else if(strcmp(n -> childs -> childs -> token, "Exp") == 0 && 
+                            strcmp(n -> childs -> childs -> bros -> token, "LB") == 0)
+                {
+                    Node *exp1 = n -> childs;
+                    Node *exp2 = n -> childs -> bros -> bros;
+                    Operand *id = NewTempt(InterCodes);
+                    TranslateExp(exp2, id, 0);
+                    
+                    Operand *offset = NewTempt(InterCodes);
+                    offset -> kind = ADDRESS_OP;
+                    Operand *trueaddr = NewTempt(InterCodes);
+                    trueaddr -> kind = ADDRESS_OP;
+                    if(LorR == -1){
+                        TranslateExp(exp1, place, LorR);
+                        assert(place -> kind == ADDRESS_OP);
+                        type *entry = place -> tp -> u.arr -> entry; 
+                        InterCodeInsert(NewInterCode(NewIR(MUL_IR, offset, id, 
+                                    NewOperand(CONSTANT_OP, GetTypeSz(entry)))), InterCodes);
+                        Operand *CopyPlace = NewOperand(VARIABLE_OP, " ");
+                        *CopyPlace = *place;
+                        InterCodeInsert(NewInterCode(NewIR(ADD_IR, trueaddr, CopyPlace, offset)), InterCodes);
+                        *place = *trueaddr;
+                        place -> tp = entry;
+                        }
+                    else {
+                        // 还是需要利用左值查询出地址
+                        Operand *expaddr = NewTempt(InterCodes);
+                        expaddr -> kind = ADDRESS_OP;
+                        TranslateExp(exp1, expaddr, -1);
+                        assert(expaddr -> kind == ADDRESS_OP);
+                        
+                        InterCodeInsert(NewInterCode(NewIR(MUL_IR, offset, id,
+                                    NewOperand(CONSTANT_OP, GetTypeSz(expaddr -> tp -> u.arr -> entry)))), InterCodes);
+                        InterCodeInsert(NewInterCode(NewIR(ADD_IR, trueaddr, expaddr, offset)), InterCodes);
+                        InterCodeInsert(NewInterCode(NewIR(RADDR_IR, place, trueaddr)), InterCodes);
+                    }
+                    }
+                
+
        }
        // Exp   ->  Exp DOT ID
        else if(strcmp(n -> childs -> bros -> token, "DOT") == 0){
