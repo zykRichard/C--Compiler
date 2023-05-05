@@ -97,6 +97,7 @@ Operand *NewOperand(OpKind kind, ...){
 
     Operand *NewOP = (Operand*)malloc(sizeof(Operand));
     NewOP -> kind = kind;
+    NewOP -> tp = NULL;
     switch (kind)
     {
     case VARIABLE_OP:
@@ -340,7 +341,9 @@ void printIR(FILE* fp, IR *ir){
         case ARG_IR:
             // ARG x
             fprintf(fp, "ARG ");
-            if(ir -> IR_Type.Single.op -> kind == VARIABLE_OP)
+            if(ir -> IR_Type.Single.op -> kind == VARIABLE_OP
+                && ir -> IR_Type.Single.op -> tp && (ir -> IR_Type.Single.op -> tp -> kind == ARRAY ||
+                                                        ir -> IR_Type.Single.op -> tp -> kind == STRUCTURE))
                 fprintf(fp, "&");
             printOP(fp, ir -> IR_Type.Single.op);
             break;
@@ -551,9 +554,12 @@ void TranslateFunDec(Node *n){
         // // TODO : array arg, struct arg
         sym *s = hash_search(n -> childs -> content);
         fun *f = s -> tp ->u.function;
+        FieldList *argv = f -> argv;
+        Intercode *ParamIC;
+        Intercode *now_to_insert = InterCodes -> tail;
+        Intercode *finalTail = NULL;
         for(int i = 0; i < f -> argc; i++){
-            FieldList *argv = f -> argv;
-            Intercode *ParamIC;
+            
             if(argv -> tp -> kind == BASIC){
                 Operand *arg = FindSetNewOpID(hash_search(argv -> name), VARIABLE_OP);
                 ParamIC = NewInterCode(NewIR(PARAM_IR, arg));
@@ -562,9 +568,19 @@ void TranslateFunDec(Node *n){
                 Operand *arg = FindSetNewOpID(hash_search(argv -> name), ADDRESS_OP);
                 ParamIC = NewInterCode(NewIR(PARAM_IR, arg));
             }
-            InterCodeInsert(ParamIC, InterCodes);
+            
+            if(i == 0) finalTail = ParamIC;
+            // reverse insert:
+            Intercode *nxt = now_to_insert -> next;
+            now_to_insert -> next = ParamIC;
+            ParamIC -> next = nxt;
+            ParamIC -> prev = now_to_insert;
+            if(nxt)
+                nxt -> prev = ParamIC;
+            
             argv = argv -> nxt;
         }
+        InterCodes -> tail = finalTail;
     }
 
 
@@ -1035,7 +1051,13 @@ void TranslateExp(Node *n, Operand *place, int LorR){
                 InterCodeInsert(NewInterCode(NewIR(READ_IR, place)), InterCodes);
             else{
                 Operand *fc = NewOperand(FUNCTION_OP, f -> name);
-                InterCodeInsert(NewInterCode(NewIR(CALL_IR, place, fc)), InterCodes);
+                if(place != NULL)
+                    InterCodeInsert(NewInterCode(NewIR(CALL_IR, place, fc)), InterCodes);
+                else {
+                    // 函数无返回值
+                    Operand *x = NewTempt(InterCodes);
+                    InterCodeInsert(NewInterCode(NewIR(CALL_IR, x, fc)), InterCodes);
+                }
             }
         }
 
@@ -1052,7 +1074,12 @@ void TranslateExp(Node *n, Operand *place, int LorR){
                     cur = cur -> next;
                 }
                 Operand *fc = NewOperand(FUNCTION_OP, f -> name);
-                InterCodeInsert(NewInterCode(NewIR(CALL_IR, place, fc)), InterCodes);
+                if(place != NULL)
+                    InterCodeInsert(NewInterCode(NewIR(CALL_IR, place, fc)), InterCodes);
+                else {
+                    Operand *x = NewTempt(InterCodes);
+                    InterCodeInsert(NewInterCode(NewIR(CALL_IR, x, fc)), InterCodes);
+                }
             }
         }
     }

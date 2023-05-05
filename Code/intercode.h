@@ -48,7 +48,7 @@ void TranslateDef(Node *n);
 void TranslateDecList(Node *n);
 void TranslateDec(Node *n);
 void TranslateVarDec(Node *n, Operand* place);
-void TranslateExp(Node *n, Operand* place, int LorR);
+void TranslateExp(Node *n, Operand* place, int LorR); // -1 for left; 1 for right; default by 0
 void TranslateArgs(Node *n, Arglist *aglist);
 
 // debug

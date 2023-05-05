@@ -19,7 +19,11 @@ int main(int argc, char **argv){
             return 1;
         }
     }
-    
+
+    if(argc > 2){
+        //assert(argv[2]);
+        filename = argv[2];
+    } 
     yyparse();
     if(lexerror == 0 && synerror == 0)
         {   //TreePrint(root, 0);
