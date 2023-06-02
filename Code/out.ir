@@ -1,0 +1,9 @@
+FUNCTION main :
+t3 := #5
+t4 := #3
+t2 := t3 + t4
+t5 := t2
+t9 := #5
+t7 := t5 + t9
+t10 := t7
+RETURN t10
