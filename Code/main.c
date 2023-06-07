@@ -11,7 +11,8 @@ extern int synerror;
 extern int yydebug;
 extern void TreePrint(Node* root, int depth);
 
-char *filename = "intercodes4.ir";
+char *filenameIR = "out.ir";
+char *filenameASM = "out.s"; 
 int main(int argc, char **argv){
     if(argc > 1){
         if(!(yyin = fopen(argv[1], "r"))){
@@ -22,14 +23,18 @@ int main(int argc, char **argv){
 
     if(argc > 2){
         //assert(argv[2]);
-        filename = argv[2];
+        filenameIR = argv[2];
+    }
+
+    if(argc > 3){
+        filenameASM = argv[3];
     } 
     yyparse();
     if(lexerror == 0 && synerror == 0)
         {   //TreePrint(root, 0);
             LexicalAnalysis(root);
-            InterCodesGenerator(root, filename);
-
+            InterCodesGenerator(root, filenameIR);
+            ASMGeneratorMIPS(filenameASM);
             }
     //printf("parser over file: %s finished", argv[1]);
     return 0;

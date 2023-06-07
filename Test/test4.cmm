@@ -1,5 +1,6 @@
 int add(int temp[2])
-{
+{   
+    int s[10]; 
     return (temp[0] + temp[1]);
 }
 
@@ -10,7 +11,7 @@ int main()
     int i = 0, j = 0;
     while(i < 2){
         while(j < 2)
-        {
+        {   i = read();
             op[j] = i + j;
             j = j + 1;
         }

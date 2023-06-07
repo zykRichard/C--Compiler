@@ -33,5 +33,9 @@
     "**/.vscode",
     "**/.vscode/**"
   ],
-  "C_Cpp_Runner.useAddressSanitizer": false
+  "C_Cpp_Runner.useAddressSanitizer": false,
+  "files.associations": {
+    "intercode.h": "c",
+    "semantic.h": "c"
+  }
 }

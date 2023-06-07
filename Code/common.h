@@ -196,11 +196,11 @@ typedef struct arglist{
 } Arglist;
 
 void InterCodesGenerator(Node *AST, char *filename);
-
+void ASMGeneratorMIPS(char *filename);
 
 // lab4: MIPS Generator
 typedef struct VarInfo{
     int offset;
-
+    int instack;
 } VarInfo;
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */
