@@ -7,6 +7,7 @@
 void MIPSGeneratorInit();
 void TransFunctions();
 int Find_Op_ID(Operand *op);
+int Find_Func_ID(Operand *op);
 void VarLoad(int reg_no, int var_no);
 void VarStore(int reg_no, int var_no);
 void MIPSGenerator();
