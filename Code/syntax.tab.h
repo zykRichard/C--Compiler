@@ -49,35 +49,32 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    SEMI = 258,
-    COMMA = 259,
-    ASSIGNOP = 260,
-    RELOP = 261,
-    PLUS = 262,
-    MINUS = 263,
-    STAR = 264,
-    DIV = 265,
-    AND = 266,
-    OR = 267,
-    DOT = 268,
-    NOT = 269,
-    TYPE = 270,
-    LP = 271,
-    RP = 272,
-    LB = 273,
-    RB = 274,
-    LC = 275,
-    RC = 276,
-    STRUCT = 277,
-    RETURN = 278,
-    IF = 279,
-    ELSE = 280,
-    WHILE = 281,
-    INT = 282,
-    FLOAT = 283,
-    ID = 284,
-    UMINUS = 285,
-    LOWER_THAN_ELSE = 286
+    END = 258,
+    COLON = 259,
+    LABEL = 260,
+    FUNC = 261,
+    GOTO = 262,
+    IF = 263,
+    RETURN = 264,
+    DEC = 265,
+    ARG = 266,
+    CALL = 267,
+    PARAM = 268,
+    READ = 269,
+    WRITE = 270,
+    INT = 271,
+    AND = 272,
+    STAR = 273,
+    ASSIGN = 274,
+    PLUS = 275,
+    MINUS = 276,
+    DIV = 277,
+    CONSTANT = 278,
+    RELOP = 279,
+    LABELOP = 280,
+    TOPERAND = 281,
+    VOPERAND = 282,
+    ID = 283
   };
 #endif
 
@@ -85,11 +82,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "./syntax.y"
+#line 10 "./syntax.y"
 
-    Node* node;    
+    Operand* node;
 
-#line 93 "./syntax.tab.h"
+#line 90 "./syntax.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

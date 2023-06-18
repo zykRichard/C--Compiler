@@ -145,6 +145,8 @@ typedef struct _operand {
     } id;
 
     type *tp;
+    int no;
+    int temp; // 1 for t variable; 0 for v variable
 } Operand;
 
 typedef struct _ir {
@@ -203,4 +205,21 @@ typedef struct VarInfo{
     int offset;
     int instack;
 } VarInfo;
+
+// lab5 : optimize
+typedef struct DAGnode{
+    struct DAGnode* lchild;
+    struct DAGnode* rchild;
+    int cnt;
+} DAGnode;
+
+typedef struct BB{
+    Intercode *start;
+    Intercode *end;
+    struct BB *prev;
+    struct BB *nxt;
+}BB;
+
+DAGnode* NodeHash;
+void optimize(char *filename);
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */
