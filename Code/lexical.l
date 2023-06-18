@@ -65,5 +65,3 @@ ID              ({letter}({letter}|{digit})*)
 {VOPERAND}  { yylval.node = NewOperand(VARIABLE_OP, yytext); return VOPERAND; }
 {ID}        { yylval.node = NewOperand(FUNCTION_OP, yytext); return ID; }
 
-
-%%
