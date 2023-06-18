@@ -21,7 +21,6 @@
 %%
 IRLIST:         IR END IRLIST
 |               IR
-|               /* empty */
 
 OPERAND:        CONSTANT                    { $$ = $1; }
 |               TOPERAND                    { ResetOP($1, 1); $$ = $1; }

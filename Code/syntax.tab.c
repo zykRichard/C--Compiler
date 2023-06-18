@@ -502,7 +502,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  26
+#define YYNRULES  25
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  57
 
@@ -554,9 +554,9 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    22,    22,    23,    24,    26,    27,    28,    30,    31,
+       0,    22,    22,    23,    25,    26,    27,    29,    30,    31,
       32,    33,    34,    35,    36,    37,    38,    39,    40,    41,
-      42,    43,    44,    45,    46,    47,    48
+      42,    43,    44,    45,    46,    47
 };
 #endif
 
@@ -611,12 +611,12 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       4,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     5,     6,     7,     0,     0,     3,     0,     0,
-      18,     0,    20,     0,    22,    24,    25,    26,     0,     1,
-       0,     4,     8,     9,     0,    21,     0,     0,     0,     0,
-      10,     2,     0,    17,    23,    15,    16,     0,     0,     0,
-       0,     0,    13,    11,    12,    14,    19
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     4,     5,     6,     0,     0,     3,     0,     0,
+      17,     0,    19,     0,    21,    23,    24,    25,     0,     1,
+       0,     0,     7,     8,     0,    20,     0,     0,     0,     0,
+       9,     2,     0,    16,    22,    14,    15,     0,     0,     0,
+       0,     0,    12,    10,    11,    13,    18
 };
 
   /* YYPGOTO[NTERM-NUM].  */
@@ -669,17 +669,17 @@ static const yytype_int8 yystos[] =
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    29,    30,    30,    30,    31,    31,    31,    32,    32,
+       0,    29,    30,    30,    31,    31,    31,    32,    32,    32,
       32,    32,    32,    32,    32,    32,    32,    32,    32,    32,
-      32,    32,    32,    32,    32,    32,    32
+      32,    32,    32,    32,    32,    32
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     3,     1,     0,     1,     1,     1,     3,     3,
-       3,     5,     5,     5,     5,     4,     4,     4,     2,     6,
-       2,     3,     2,     4,     2,     2,     2
+       0,     2,     3,     1,     1,     1,     1,     3,     3,     3,
+       5,     5,     5,     5,     4,     4,     4,     2,     6,     2,
+       3,     2,     4,     2,     2,     2
 };
 
 
@@ -1469,134 +1469,134 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 5:
-#line 26 "./syntax.y"
+  case 4:
+#line 25 "./syntax.y"
                                             { (yyval.node) = (yyvsp[0].node); }
 #line 1476 "./syntax.tab.c"
     break;
 
-  case 6:
-#line 27 "./syntax.y"
+  case 5:
+#line 26 "./syntax.y"
                                             { ResetOP((yyvsp[0].node), 1); (yyval.node) = (yyvsp[0].node); }
 #line 1482 "./syntax.tab.c"
     break;
 
-  case 7:
-#line 28 "./syntax.y"
+  case 6:
+#line 27 "./syntax.y"
                                             { ResetOP((yyvsp[0].node), 0); (yyval.node) = (yyvsp[0].node); }
 #line 1488 "./syntax.tab.c"
     break;
 
-  case 8:
-#line 30 "./syntax.y"
+  case 7:
+#line 29 "./syntax.y"
                                             { InterCodeInsert(NewInterCode(NewIR(LABEL_IR, (yyvsp[-1].node))), InterCodes);}
 #line 1494 "./syntax.tab.c"
     break;
 
-  case 9:
-#line 31 "./syntax.y"
+  case 8:
+#line 30 "./syntax.y"
                                         { printf("Now it's FUNCTION IR\n"); InterCodeInsert(NewInterCode(NewIR(FUNCTION_IR, (yyvsp[-1].node))), InterCodes);}
 #line 1500 "./syntax.tab.c"
     break;
 
-  case 10:
-#line 32 "./syntax.y"
+  case 9:
+#line 31 "./syntax.y"
                                             { InterCodeInsert(NewInterCode(NewIR(ASSIGN_IR, (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1506 "./syntax.tab.c"
     break;
 
-  case 11:
-#line 33 "./syntax.y"
+  case 10:
+#line 32 "./syntax.y"
                                                            { InterCodeInsert(NewInterCode(NewIR(ADD_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1512 "./syntax.tab.c"
     break;
 
-  case 12:
-#line 34 "./syntax.y"
+  case 11:
+#line 33 "./syntax.y"
                                                            { InterCodeInsert(NewInterCode(NewIR(SUB_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1518 "./syntax.tab.c"
     break;
 
-  case 13:
-#line 35 "./syntax.y"
+  case 12:
+#line 34 "./syntax.y"
                                                            { InterCodeInsert(NewInterCode(NewIR(MUL_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1524 "./syntax.tab.c"
     break;
 
-  case 14:
-#line 36 "./syntax.y"
+  case 13:
+#line 35 "./syntax.y"
                                                           { InterCodeInsert(NewInterCode(NewIR(DIV_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1530 "./syntax.tab.c"
     break;
 
-  case 15:
-#line 37 "./syntax.y"
+  case 14:
+#line 36 "./syntax.y"
                                                            { InterCodeInsert(NewInterCode(NewIR(GADDR_IR, (yyvsp[-3].node), (yyvsp[0].node))), InterCodes);}
 #line 1536 "./syntax.tab.c"
     break;
 
-  case 16:
-#line 38 "./syntax.y"
+  case 15:
+#line 37 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(RADDR_IR, (yyvsp[-3].node), (yyvsp[0].node))), InterCodes);}
 #line 1542 "./syntax.tab.c"
     break;
 
-  case 17:
-#line 39 "./syntax.y"
+  case 16:
+#line 38 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(WADDR_IR, (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1548 "./syntax.tab.c"
     break;
 
-  case 18:
-#line 40 "./syntax.y"
+  case 17:
+#line 39 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(GOTO_IR, (yyvsp[0].node))), InterCodes);}
 #line 1554 "./syntax.tab.c"
     break;
 
-  case 19:
-#line 41 "./syntax.y"
+  case 18:
+#line 40 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(IF_IR, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
 #line 1560 "./syntax.tab.c"
     break;
 
-  case 20:
-#line 42 "./syntax.y"
+  case 19:
+#line 41 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(RETURN_IR, (yyvsp[0].node))), InterCodes);}
 #line 1566 "./syntax.tab.c"
     break;
 
-  case 21:
-#line 43 "./syntax.y"
+  case 20:
+#line 42 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(DEC_IR, (yyvsp[-1].node), (yyvsp[0].node) -> id.value)), InterCodes);}
 #line 1572 "./syntax.tab.c"
     break;
 
-  case 22:
-#line 44 "./syntax.y"
+  case 21:
+#line 43 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(ARG_IR, (yyvsp[0].node))), InterCodes);}
 #line 1578 "./syntax.tab.c"
     break;
 
-  case 23:
-#line 45 "./syntax.y"
+  case 22:
+#line 44 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(CALL_IR, (yyvsp[-3].node), (yyvsp[0].node))), InterCodes);}
 #line 1584 "./syntax.tab.c"
     break;
 
-  case 24:
-#line 46 "./syntax.y"
+  case 23:
+#line 45 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(PARAM_IR, (yyvsp[0].node))), InterCodes);}
 #line 1590 "./syntax.tab.c"
     break;
 
-  case 25:
-#line 47 "./syntax.y"
+  case 24:
+#line 46 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(READ_IR, (yyvsp[0].node))), InterCodes); }
 #line 1596 "./syntax.tab.c"
     break;
 
-  case 26:
-#line 48 "./syntax.y"
+  case 25:
+#line 47 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(WRITE_IR, (yyvsp[0].node))), InterCodes); }
 #line 1602 "./syntax.tab.c"
     break;
@@ -1840,7 +1840,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 49 "./syntax.y"
+#line 48 "./syntax.y"
 
 
 

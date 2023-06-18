@@ -827,7 +827,7 @@ case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
 #line 40 "./lexical.l"
-{yycolumn = 1; return END; }
+{ return END; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
@@ -847,7 +847,7 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 44 "./lexical.l"
-{ return FUNC; }
+{ printf("It's function\n"); return FUNC; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP

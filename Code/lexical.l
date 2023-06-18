@@ -37,11 +37,11 @@ ID              ({letter}({letter}|{digit})*)
 
 %% 
 
-{newline}   {yycolumn = 1; return END; }
+{newline}   { return END; }
 {ws}        {}
 ":"         { return COLON; }
 "LABEL"     { return LABEL; }
-"FUNCTION"  { return FUNC; }
+"FUNCTION"  { printf("It's function\n"); return FUNC; }
 "GOTO"      { return GOTO; }
 "IF"        { return IF; }
 "RETURN"    { return RETURN; }
