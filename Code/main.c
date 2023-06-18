@@ -21,7 +21,8 @@ int main(int argc, char **argv){
             return 1;
         }
     }
-
+    ICListInit();
+    yyparse();
     optimize(bbtest);
     // if(argc > 2){
     //     //assert(argv[2]);

@@ -72,7 +72,7 @@
     #include "lex.yy.c"
     int yyerror(char *msg);
     void ResetOP(Operand *op, int istemp);
-
+    void CmpOP(Operand *op);
 
 #line 78 "./syntax.tab.c"
 
@@ -135,19 +135,20 @@ extern int yydebug;
     PARAM = 268,
     READ = 269,
     WRITE = 270,
-    INT = 271,
-    AND = 272,
-    STAR = 273,
-    ASSIGN = 274,
-    PLUS = 275,
-    MINUS = 276,
-    DIV = 277,
-    CONSTANT = 278,
-    RELOP = 279,
-    LABELOP = 280,
-    TOPERAND = 281,
-    VOPERAND = 282,
-    ID = 283
+    GOPERAND = 271,
+    ROPERAND = 272,
+    INT = 273,
+    STAR = 274,
+    ASSIGN = 275,
+    PLUS = 276,
+    MINUS = 277,
+    DIV = 278,
+    CONSTANT = 279,
+    RELOP = 280,
+    LABELOP = 281,
+    TOPERAND = 282,
+    VOPERAND = 283,
+    ID = 284
   };
 #endif
 
@@ -159,7 +160,7 @@ union YYSTYPE
 
     Operand* node;
 
-#line 163 "./syntax.tab.c"
+#line 164 "./syntax.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -495,19 +496,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  29
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   58
+#define YYLAST   57
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  29
+#define YYNTOKENS  30
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  25
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  57
+#define YYNSTATES  51
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   283
+#define YYMAXUTOK   284
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -547,16 +548,16 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28
+      25,    26,    27,    28,    29
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    22,    22,    23,    25,    26,    27,    29,    30,    31,
-      32,    33,    34,    35,    36,    37,    38,    39,    40,    41,
-      42,    43,    44,    45,    46,    47
+       0,    23,    23,    24,    25,    27,    28,    29,    30,    31,
+      33,    34,    35,    36,    37,    38,    39,    43,    44,    45,
+      46,    47,    48,    49,    50,    51
 };
 #endif
 
@@ -566,10 +567,10 @@ static const yytype_int8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "END", "COLON", "LABEL", "FUNC", "GOTO",
-  "IF", "RETURN", "DEC", "ARG", "CALL", "PARAM", "READ", "WRITE", "INT",
-  "AND", "STAR", "ASSIGN", "PLUS", "MINUS", "DIV", "CONSTANT", "RELOP",
-  "LABELOP", "TOPERAND", "VOPERAND", "ID", "$accept", "IRLIST", "OPERAND",
-  "IR", YY_NULLPTR
+  "IF", "RETURN", "DEC", "ARG", "CALL", "PARAM", "READ", "WRITE",
+  "GOPERAND", "ROPERAND", "INT", "STAR", "ASSIGN", "PLUS", "MINUS", "DIV",
+  "CONSTANT", "RELOP", "LABELOP", "TOPERAND", "VOPERAND", "ID", "$accept",
+  "IRLIST", "OPERAND", "IR", YY_NULLPTR
 };
 #endif
 
@@ -580,11 +581,11 @@ static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277,   278,   279,   280,   281,   282,   283
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284
 };
 # endif
 
-#define YYPACT_NINF (-17)
+#define YYPACT_NINF (-22)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -598,12 +599,12 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      10,   -16,   -15,   -11,    28,    28,    28,    28,    28,    28,
-      28,    28,   -17,   -17,   -17,    22,     8,    26,    27,    34,
-     -17,    15,   -17,    24,   -17,   -17,   -17,   -17,    31,   -17,
-      30,    10,   -17,   -17,    28,   -17,    28,    13,    28,    28,
-     -10,   -17,    42,   -17,   -17,   -17,   -17,    28,    28,    28,
-      28,    33,   -17,   -17,   -17,   -17,   -17
+       4,   -19,   -21,   -10,    19,    19,    19,    19,    19,    19,
+      19,   -22,   -22,   -22,   -22,   -22,    22,     3,    21,    23,
+      38,   -22,     0,   -22,    31,   -22,   -22,   -22,   -22,   -22,
+      17,     4,   -22,   -22,    19,   -22,    24,    29,   -22,    47,
+     -22,    19,    19,    19,    19,    30,   -22,   -22,   -22,   -22,
+     -22
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -611,24 +612,24 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     4,     5,     6,     0,     0,     3,     0,     0,
-      17,     0,    19,     0,    21,    23,    24,    25,     0,     1,
-       0,     0,     7,     8,     0,    20,     0,     0,     0,     0,
-       9,     2,     0,    16,    22,    14,    15,     0,     0,     0,
-       0,     0,    12,    10,    11,    13,    18
+       2,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     8,     9,     5,     6,     7,     0,     0,     4,     0,
+       0,    17,     0,    19,     0,    21,    23,    24,    25,     1,
+       0,     2,    10,    11,     0,    20,     0,    12,     3,     0,
+      22,     0,     0,     0,     0,     0,    15,    13,    14,    16,
+      18
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -17,    21,    -4,   -17
+     -22,    26,    -4,   -22
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,    15,    16,    17
+      -1,    16,    17,    18
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -636,22 +637,22 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      21,    22,    23,    24,    25,    26,    27,    28,    47,    18,
-      48,    49,    50,    19,    20,     1,     2,     3,     4,     5,
-       6,     7,    29,     8,     9,    10,    40,    30,    11,    31,
-      42,    32,    43,    12,    45,    46,    13,    14,    33,    34,
-      35,    44,    37,    52,    53,    54,    55,    38,    39,    51,
-      36,    12,    41,    12,    13,    14,    13,    14,    56
+      22,    23,    24,    25,    26,    27,    28,    19,    20,     1,
+       2,     3,     4,     5,     6,     7,    21,     8,     9,    10,
+      11,    12,    29,    30,    31,    34,    37,    32,    13,    36,
+      39,    14,    15,    11,    12,    11,    12,    46,    47,    48,
+      49,    13,    33,    13,    14,    15,    14,    15,    41,    35,
+      42,    43,    44,    40,    45,     0,    50,    38
 };
 
 static const yytype_int8 yycheck[] =
 {
-       4,     5,     6,     7,     8,     9,    10,    11,    18,    25,
-      20,    21,    22,    28,    25,     5,     6,     7,     8,     9,
-      10,    11,     0,    13,    14,    15,    30,    19,    18,     3,
-      34,     4,    36,    23,    38,    39,    26,    27,     4,    24,
-      16,    28,    12,    47,    48,    49,    50,    17,    18,     7,
-      19,    23,    31,    23,    26,    27,    26,    27,    25
+       4,     5,     6,     7,     8,     9,    10,    26,    29,     5,
+       6,     7,     8,     9,    10,    11,    26,    13,    14,    15,
+      16,    17,     0,    20,     3,    25,    30,     4,    24,    12,
+      34,    27,    28,    16,    17,    16,    17,    41,    42,    43,
+      44,    24,     4,    24,    27,    28,    27,    28,    19,    18,
+      21,    22,    23,    29,     7,    -1,    26,    31
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -659,26 +660,26 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,     5,     6,     7,     8,     9,    10,    11,    13,    14,
-      15,    18,    23,    26,    27,    30,    31,    32,    25,    28,
-      25,    31,    31,    31,    31,    31,    31,    31,    31,     0,
-      19,     3,     4,     4,    24,    16,    19,    12,    17,    18,
-      31,    30,    31,    31,    28,    31,    31,    18,    20,    21,
-      22,     7,    31,    31,    31,    31,    25
+      15,    16,    17,    24,    27,    28,    31,    32,    33,    26,
+      29,    26,    32,    32,    32,    32,    32,    32,    32,     0,
+      20,     3,     4,     4,    25,    18,    12,    32,    31,    32,
+      29,    19,    21,    22,    23,     7,    32,    32,    32,    32,
+      26
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    29,    30,    30,    31,    31,    31,    32,    32,    32,
-      32,    32,    32,    32,    32,    32,    32,    32,    32,    32,
-      32,    32,    32,    32,    32,    32
+       0,    30,    31,    31,    31,    32,    32,    32,    32,    32,
+      33,    33,    33,    33,    33,    33,    33,    33,    33,    33,
+      33,    33,    33,    33,    33,    33
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     3,     1,     1,     1,     1,     3,     3,     3,
-       5,     5,     5,     5,     4,     4,     4,     2,     6,     2,
+       0,     2,     0,     3,     1,     1,     1,     1,     1,     1,
+       3,     3,     3,     5,     5,     5,     5,     2,     6,     2,
        3,     2,     4,     2,     2,     2
 };
 
@@ -1469,140 +1470,134 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 4:
-#line 25 "./syntax.y"
-                                            { (yyval.node) = (yyvsp[0].node); }
-#line 1476 "./syntax.tab.c"
-    break;
-
   case 5:
-#line 26 "./syntax.y"
-                                            { ResetOP((yyvsp[0].node), 1); (yyval.node) = (yyvsp[0].node); }
-#line 1482 "./syntax.tab.c"
+#line 27 "./syntax.y"
+                                            { (yyval.node) = (yyvsp[0].node); }
+#line 1477 "./syntax.tab.c"
     break;
 
   case 6:
-#line 27 "./syntax.y"
-                                            { ResetOP((yyvsp[0].node), 0); (yyval.node) = (yyvsp[0].node); }
-#line 1488 "./syntax.tab.c"
+#line 28 "./syntax.y"
+                                            { ResetOP((yyvsp[0].node), 1); (yyval.node) = (yyvsp[0].node); }
+#line 1483 "./syntax.tab.c"
     break;
 
   case 7:
 #line 29 "./syntax.y"
-                                            { InterCodeInsert(NewInterCode(NewIR(LABEL_IR, (yyvsp[-1].node))), InterCodes);}
-#line 1494 "./syntax.tab.c"
+                                            { ResetOP((yyvsp[0].node), 0); (yyval.node) = (yyvsp[0].node); }
+#line 1489 "./syntax.tab.c"
     break;
 
   case 8:
 #line 30 "./syntax.y"
-                                        { printf("Now it's FUNCTION IR\n"); InterCodeInsert(NewInterCode(NewIR(FUNCTION_IR, (yyvsp[-1].node))), InterCodes);}
-#line 1500 "./syntax.tab.c"
+                                            { CmpOP((yyvsp[0].node)); (yyval.node) = (yyvsp[0].node); }
+#line 1495 "./syntax.tab.c"
     break;
 
   case 9:
 #line 31 "./syntax.y"
-                                            { InterCodeInsert(NewInterCode(NewIR(ASSIGN_IR, (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1506 "./syntax.tab.c"
+                                            { CmpOP((yyvsp[0].node)); (yyval.node) = (yyvsp[0].node); }
+#line 1501 "./syntax.tab.c"
     break;
 
   case 10:
-#line 32 "./syntax.y"
-                                                           { InterCodeInsert(NewInterCode(NewIR(ADD_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1512 "./syntax.tab.c"
+#line 33 "./syntax.y"
+                                            { InterCodeInsert(NewInterCode(NewIR(LABEL_IR, (yyvsp[-1].node))), InterCodes);}
+#line 1507 "./syntax.tab.c"
     break;
 
   case 11:
-#line 33 "./syntax.y"
-                                                           { InterCodeInsert(NewInterCode(NewIR(SUB_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1518 "./syntax.tab.c"
+#line 34 "./syntax.y"
+                                        { InterCodeInsert(NewInterCode(NewIR(FUNCTION_IR, (yyvsp[-1].node))), InterCodes);}
+#line 1513 "./syntax.tab.c"
     break;
 
   case 12:
-#line 34 "./syntax.y"
-                                                           { InterCodeInsert(NewInterCode(NewIR(MUL_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1524 "./syntax.tab.c"
+#line 35 "./syntax.y"
+                                            { InterCodeInsert(NewInterCode(NewIR(ASSIGN_IR, (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
+#line 1519 "./syntax.tab.c"
     break;
 
   case 13:
-#line 35 "./syntax.y"
-                                                          { InterCodeInsert(NewInterCode(NewIR(DIV_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1530 "./syntax.tab.c"
+#line 36 "./syntax.y"
+                                                           { InterCodeInsert(NewInterCode(NewIR(ADD_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
+#line 1525 "./syntax.tab.c"
     break;
 
   case 14:
-#line 36 "./syntax.y"
-                                                           { InterCodeInsert(NewInterCode(NewIR(GADDR_IR, (yyvsp[-3].node), (yyvsp[0].node))), InterCodes);}
-#line 1536 "./syntax.tab.c"
+#line 37 "./syntax.y"
+                                                           { InterCodeInsert(NewInterCode(NewIR(SUB_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
+#line 1531 "./syntax.tab.c"
     break;
 
   case 15:
-#line 37 "./syntax.y"
-                                                            { InterCodeInsert(NewInterCode(NewIR(RADDR_IR, (yyvsp[-3].node), (yyvsp[0].node))), InterCodes);}
-#line 1542 "./syntax.tab.c"
+#line 38 "./syntax.y"
+                                                           { InterCodeInsert(NewInterCode(NewIR(MUL_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
+#line 1537 "./syntax.tab.c"
     break;
 
   case 16:
-#line 38 "./syntax.y"
-                                                            { InterCodeInsert(NewInterCode(NewIR(WADDR_IR, (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1548 "./syntax.tab.c"
+#line 39 "./syntax.y"
+                                                          { InterCodeInsert(NewInterCode(NewIR(DIV_IR, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
+#line 1543 "./syntax.tab.c"
     break;
 
   case 17:
-#line 39 "./syntax.y"
+#line 43 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(GOTO_IR, (yyvsp[0].node))), InterCodes);}
-#line 1554 "./syntax.tab.c"
+#line 1549 "./syntax.tab.c"
     break;
 
   case 18:
-#line 40 "./syntax.y"
+#line 44 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(IF_IR, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[0].node))), InterCodes);}
-#line 1560 "./syntax.tab.c"
+#line 1555 "./syntax.tab.c"
     break;
 
   case 19:
-#line 41 "./syntax.y"
+#line 45 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(RETURN_IR, (yyvsp[0].node))), InterCodes);}
-#line 1566 "./syntax.tab.c"
+#line 1561 "./syntax.tab.c"
     break;
 
   case 20:
-#line 42 "./syntax.y"
+#line 46 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(DEC_IR, (yyvsp[-1].node), (yyvsp[0].node) -> id.value)), InterCodes);}
-#line 1572 "./syntax.tab.c"
+#line 1567 "./syntax.tab.c"
     break;
 
   case 21:
-#line 43 "./syntax.y"
+#line 47 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(ARG_IR, (yyvsp[0].node))), InterCodes);}
-#line 1578 "./syntax.tab.c"
+#line 1573 "./syntax.tab.c"
     break;
 
   case 22:
-#line 44 "./syntax.y"
+#line 48 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(CALL_IR, (yyvsp[-3].node), (yyvsp[0].node))), InterCodes);}
-#line 1584 "./syntax.tab.c"
+#line 1579 "./syntax.tab.c"
     break;
 
   case 23:
-#line 45 "./syntax.y"
+#line 49 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(PARAM_IR, (yyvsp[0].node))), InterCodes);}
-#line 1590 "./syntax.tab.c"
+#line 1585 "./syntax.tab.c"
     break;
 
   case 24:
-#line 46 "./syntax.y"
+#line 50 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(READ_IR, (yyvsp[0].node))), InterCodes); }
-#line 1596 "./syntax.tab.c"
+#line 1591 "./syntax.tab.c"
     break;
 
   case 25:
-#line 47 "./syntax.y"
+#line 51 "./syntax.y"
                                                             { InterCodeInsert(NewInterCode(NewIR(WRITE_IR, (yyvsp[0].node))), InterCodes); }
-#line 1602 "./syntax.tab.c"
+#line 1597 "./syntax.tab.c"
     break;
 
 
-#line 1606 "./syntax.tab.c"
+#line 1601 "./syntax.tab.c"
 
       default: break;
     }
@@ -1840,12 +1835,22 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 48 "./syntax.y"
+#line 52 "./syntax.y"
 
 
 
 void ResetOP(Operand *op, int istemp){
     op -> temp = istemp;
+    int id = atoi(op -> id.name + 1);
+    op -> no = id;
+}
+
+void CmpOP(Operand *op){
+    if(strncmp(op -> id.name, "v", 1) == 0)
+        op -> temp = 0;
+    else if(strncmp(op -> id.name, "t", 1) == 0)
+        op -> temp = 1;
+    else printf("Error in comparing\n");
     int id = atoi(op -> id.name + 1);
     op -> no = id;
 }

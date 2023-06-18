@@ -25,6 +25,8 @@ typedef enum _opkind {
         LABEL_OP,
         FUNCTION_OP,
         RELOP_OP,
+        GADDR_OP,
+        RADDR_OP
 } OpKind;
 
 typedef enum _irkind {
@@ -199,7 +201,7 @@ typedef struct arglist{
 
 void InterCodesGenerator(Node *AST, char *filename);
 void ASMGeneratorMIPS(char *filename);
-
+void ICListInit();
 // lab4: MIPS Generator
 typedef struct VarInfo{
     int offset;
@@ -220,6 +222,13 @@ typedef struct BB{
     struct BB *nxt;
 }BB;
 
-DAGnode* NodeHash;
+// 局部常量折叠
+typedef struct HashEntry{
+    int value;
+    int valid;
+} HashEntry;
+
+HashEntry NodeHash[2048];
+
 void optimize(char *filename);
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */

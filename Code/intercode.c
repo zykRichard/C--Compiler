@@ -105,7 +105,14 @@ Operand *NewOperand(OpKind kind, ...){
     case LABEL_OP:
     case FUNCTION_OP:
     case RELOP_OP:
-        NewOP -> id.name = va_arg(vaList, char *);
+    case GADDR_OP:
+    case RADDR_OP:
+    {
+        char *tobecopy = va_arg(vaList, char *);
+        char *sname = (char *)malloc(strlen(tobecopy) + 1);
+        strcpy(sname, tobecopy);
+        NewOP -> id.name = sname;
+    }
         break;
     case CONSTANT_OP:
         NewOP -> id.value = va_arg(vaList, int);
@@ -143,6 +150,14 @@ void printOP(FILE* fp, Operand *op){
         
         case CONSTANT_OP:
             fprintf(fp, "#%d", op -> id.value);
+            break;
+
+        case GADDR_OP:
+            fprintf(fp, "&%s", op -> id.name);
+            break;
+
+        case RADDR_OP:
+            fprintf(fp, "*%s", op -> id.name);
             break;
 
         default: 

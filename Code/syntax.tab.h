@@ -62,19 +62,20 @@ extern int yydebug;
     PARAM = 268,
     READ = 269,
     WRITE = 270,
-    INT = 271,
-    AND = 272,
-    STAR = 273,
-    ASSIGN = 274,
-    PLUS = 275,
-    MINUS = 276,
-    DIV = 277,
-    CONSTANT = 278,
-    RELOP = 279,
-    LABELOP = 280,
-    TOPERAND = 281,
-    VOPERAND = 282,
-    ID = 283
+    GOPERAND = 271,
+    ROPERAND = 272,
+    INT = 273,
+    STAR = 274,
+    ASSIGN = 275,
+    PLUS = 276,
+    MINUS = 277,
+    DIV = 278,
+    CONSTANT = 279,
+    RELOP = 280,
+    LABELOP = 281,
+    TOPERAND = 282,
+    VOPERAND = 283,
+    ID = 284
   };
 #endif
 
@@ -86,7 +87,7 @@ union YYSTYPE
 
     Operand* node;
 
-#line 90 "./syntax.tab.h"
+#line 91 "./syntax.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

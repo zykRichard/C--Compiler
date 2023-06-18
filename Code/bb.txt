@@ -1,0 +1,3 @@
+BLOCK 0
+DEC v6 40
+RETURN #0

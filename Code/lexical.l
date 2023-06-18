@@ -4,11 +4,11 @@
     #include "syntax.tab.h"
     int lexerror = 0;
     int yycolumn = 1;
-    #define YY_USER_ACTION \
-        yylloc.first_line = yylloc.last_line = yylineno; \
-        yylloc.first_column = yycolumn; \
-        yylloc.last_column = yycolumn + yyleng - 1; \
-        yycolumn += yyleng;
+    // #define YY_USER_ACTION \
+    //     yylloc.first_line = yylloc.last_line = yylineno; \
+    //     yylloc.first_column = yycolumn; \
+    //     yylloc.last_column = yycolumn + yyleng - 1; \
+    //     yycolumn += yyleng;
     
 %}
 
@@ -27,12 +27,14 @@ DIV             (\/)
 LABELOP         ({Label}{digits})
 letter          ([_a-zA-Z])
 CONSTANT        ((\#){digits})
-AND             (\&)
+
 STAR            (\*)
 ASSIGN          (:=)
 RELOP           (>|<|>=|<=|==|!=)
 TOPERAND        ([t]{digits})
 VOPERAND        ([v]{digits})
+GOPERAND        (\&({TOPERAND}|{VOPERAND}))
+ROPERAND        (\*({TOPERAND}|{VOPERAND}))
 ID              ({letter}({letter}|{digit})*)
 
 %% 
@@ -41,7 +43,7 @@ ID              ({letter}({letter}|{digit})*)
 {ws}        {}
 ":"         { return COLON; }
 "LABEL"     { return LABEL; }
-"FUNCTION"  { printf("It's function\n"); return FUNC; }
+"FUNCTION"  { return FUNC; }
 "GOTO"      { return GOTO; }
 "IF"        { return IF; }
 "RETURN"    { return RETURN; }
@@ -51,12 +53,13 @@ ID              ({letter}({letter}|{digit})*)
 "PARAM"     { return PARAM; }
 "READ"      { return READ; }
 "WRITE"     { return WRITE; }
+{GOPERAND}  { yylval.node = NewOperand(GADDR_OP, yytext + 1); return GOPERAND; }
+{ROPERAND}  { yylval.node = NewOperand(RADDR_OP, yytext + 1); return ROPERAND; }
 {INT}       { yylval.node = NewOperand(CONSTANT_OP, atoi(yytext)); return INT; }
 {PLUS}      { return PLUS; }
 {MINUS}     { return MINUS; }
 {DIV}       { return DIV; }
 {CONSTANT}  { yylval.node = NewOperand(CONSTANT_OP, atoi(yytext + 1)); return CONSTANT;}
-{AND}       { return AND; }
 {STAR}      { return STAR; }
 {ASSIGN}    { return ASSIGN; }
 {RELOP}     { yylval.node = NewOperand(RELOP_OP, yytext); return RELOP; }  
@@ -65,3 +68,4 @@ ID              ({letter}({letter}|{digit})*)
 {VOPERAND}  { yylval.node = NewOperand(VARIABLE_OP, yytext); return VOPERAND; }
 {ID}        { yylval.node = NewOperand(FUNCTION_OP, yytext); return ID; }
 
+%% 
