@@ -1,31 +1,52 @@
 FUNCTION main :
-READ t1
-v1 := t1
-READ t2
-v2 := t2
-v3 := #2
-v4 := #3
-t3 := v2 + #2
-v1 := t3
-t4 := v1 - #3
-v2 := t4
-t5 := v2 + #2
-v3 := t5
-t6 := t4
-v4 := t6
-t7 := v1 + v3
-v5 := t7
-t8 := v1 - v4
-v6 := t8
-t9 := v4 + v6
-v7 := t9
-t10 := v2 + v1
-v1 := t10
-t11 := v7 + v6
-v8 := t11
-WRITE v8
-t12 := v1 + v4
-v9 := t12
-WRITE v9
-t13 := #0
-RETURN t13
+t2 := #1
+t3 := #1
+t5 := #1
+t6 := #1
+READ t8
+t9 := t8
+t11 := #1
+IF t9 < t11 GOTO label0
+GOTO label1
+LABEL label0 :
+t12 := #0
+WRITE t12
+GOTO label2
+LABEL label1 :
+t14 := #1
+IF t9 == t14 GOTO label3
+GOTO label5
+LABEL label5 :
+t16 := #2
+IF t9 == t16 GOTO label3
+GOTO label4
+LABEL label3 :
+t17 := #1
+WRITE t17
+GOTO label6
+LABEL label4 :
+t19 := #2
+IF t9 > t19 GOTO label7
+GOTO label8
+LABEL label7 :
+t21 := #3
+t22 := #3
+LABEL label9 :
+IF t22 <= t9 GOTO label10
+GOTO label11
+LABEL label10 :
+t26 := t3 + t6
+t29 := t26
+t3 := t6
+t6 := t29
+t37 := #1
+t35 := t22 + #1
+t22 := t35
+GOTO label9
+LABEL label11 :
+WRITE t29
+LABEL label8 :
+LABEL label6 :
+LABEL label2 :
+t39 := #0
+RETURN t39

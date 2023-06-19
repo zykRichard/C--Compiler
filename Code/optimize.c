@@ -583,6 +583,7 @@ void LocalCommonExpDel(BB *BBList){
                     Operand *left = ic -> IRcode->IR_Type.Assign.left;
                     Operand *right = ic -> IRcode->IR_Type.Assign.right;
                     IRundefine(left);
+                    if(right -> kind == CONSTANT_OP) goto END;
                     Operand *reduce = CheckConsistency(ic -> IRcode);
                     IR *tobeinsert = NewIR(ASSIGN_IR, left, right);
                     IRentryInsert(NewIRentry(tobeinsert), irlist);
@@ -624,6 +625,7 @@ void LocalCommonExpDel(BB *BBList){
                 default:
                     break;
             }
+            END: 
             if(ic == curBB->end) 
                 break;
             ic = ic -> next;

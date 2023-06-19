@@ -12,7 +12,7 @@ InterCodeList *InterCodes;
 
 void InterCodesTranslate(Node *root);
 //initialization
-void ICListInit();
+
 // operand
 Operand *NewOperand(OpKind kind, ...);
 void OperandChange(Operand *op, OpKind ChangeKind, char* ChangeName);
