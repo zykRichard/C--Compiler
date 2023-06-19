@@ -11,7 +11,7 @@ extern int synerror;
 extern int yydebug;
 extern void TreePrint(Node* root, int depth);
 
-char *filename = "intercodes4.ir";
+char *filename = "../intercodes1.ir";
 int main(int argc, char **argv){
     if(argc > 1){
         if(!(yyin = fopen(argv[1], "r"))){
