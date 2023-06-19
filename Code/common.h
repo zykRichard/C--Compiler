@@ -230,5 +230,17 @@ typedef struct HashEntry{
 
 HashEntry NodeHash[2048];
 
+// 局部公共子表达式消除
+typedef struct IRentry{
+    IR *ir;
+    struct IRentry* prev;
+    struct IRentry* nxt;
+}IRentry;
+
+typedef struct IRentryList{
+    IRentry *head;
+    IRentry *tail;
+}IRentryList;
+IRentryList *irlist;
 void optimize(char *filename);
 #endif /* C6A9B744_6E0F_4B2E_AE52_EAD5BB167546 */
